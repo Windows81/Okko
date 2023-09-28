@@ -90,18 +90,18 @@
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<CoordinateFrame name="CFrame">
-					<X>-140.641876</X>
-					<Y>183.991028</Y>
-					<Z>-64.4781494</Z>
-					<R00>-0.454276383</R00>
-					<R01>0.698280752</R01>
-					<R02>-0.553206146</R02>
-					<R10>-1.49011612e-08</R10>
-					<R11>0.620979369</R11>
-					<R12>0.783826947</R12>
-					<R20>0.890860856</R20>
-					<R21>0.356074065</R21>
-					<R22>-0.282096237</R22>
+					<X>1.05682182</X>
+					<Y>6.0323</Y>
+					<Z>-3.86099958</Z>
+					<R00>-0.742101073</R00>
+					<R01>0.32740289</R01>
+					<R02>-0.584887505</R02>
+					<R10>-0</R10>
+					<R11>0.872591317</R11>
+					<R12>0.488451004</R12>
+					<R20>0.670288086</R20>
+					<R21>0.362480015</R21>
+					<R22>-0.647550881</R22>
 				</CoordinateFrame>
 				<Ref name="CameraSubject">null</Ref>
 				<token name="CameraType">0</token>
@@ -110,9 +110,9 @@
 				<float name="FieldOfView">70</float>
 				<token name="FieldOfViewMode">0</token>
 				<CoordinateFrame name="Focus">
-					<X>-139.535461</X>
-					<Y>182.42337</Y>
-					<Z>-63.9139557</Z>
+					<X>1.86886144</X>
+					<Y>5.35414982</Y>
+					<Z>-2.96196008</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -348,6 +348,497 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 					<Z>512</Z>
 				</Vector3>
 			</Properties>
+		</Item>
+		<Item class="Tool" referent="RBX33A79579BB4242EC9DC428B22D5C5191">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<bool name="CanBeDropped">true</bool>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<bool name="Enabled">true</bool>
+				<CoordinateFrame name="Grip">
+					<X>0</X>
+					<Y>-0.699999988</Y>
+					<Z>0.100000001</Z>
+					<R00>1</R00>
+					<R01>0</R01>
+					<R02>0</R02>
+					<R10>0</R10>
+					<R11>1</R11>
+					<R12>0</R12>
+					<R20>0</R20>
+					<R21>0</R21>
+					<R22>1</R22>
+				</CoordinateFrame>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<token name="LevelOfDetail">0</token>
+				<bool name="ManualActivationOnly">false</bool>
+				<CoordinateFrame name="ModelMeshCFrame">
+					<X>0</X>
+					<Y>0</Y>
+					<Z>0</Z>
+					<R00>1</R00>
+					<R01>0</R01>
+					<R02>0</R02>
+					<R10>0</R10>
+					<R11>1</R11>
+					<R12>0</R12>
+					<R20>0</R20>
+					<R21>0</R21>
+					<R22>1</R22>
+				</CoordinateFrame>
+				<SharedString name="ModelMeshData">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+				<Vector3 name="ModelMeshSize">
+					<X>0</X>
+					<Y>0</Y>
+					<Z>0</Z>
+				</Vector3>
+				<token name="ModelStreamingMode">0</token>
+				<string name="Name">Spork</string>
+				<bool name="NeedsPivotMigration">false</bool>
+				<Ref name="PrimaryPart">null</Ref>
+				<bool name="RequiresHandle">true</bool>
+				<float name="ScaleFactor">1</float>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<Content name="TextureId"><url>http://www.roblox.com/asset/?id=107441224</url></Content>
+				<string name="ToolTip"></string>
+				<UniqueId name="UniqueId">0547544a8c8616f70527844f00004215</UniqueId>
+				<OptionalCoordinateFrame name="WorldPivotData">
+					<CFrame>
+						<X>1.86886144</X>
+						<Y>5.35414982</Y>
+						<Z>-2.96196008</Z>
+						<R00>0.998011708</R00>
+						<R01>0.015104292</R01>
+						<R02>0.0611902922</R02>
+						<R10>-0.013555442</R10>
+						<R11>0.999579012</R11>
+						<R12>-0.0256484151</R12>
+						<R20>-0.0615519397</R20>
+						<R21>0.02476798</R21>
+						<R22>0.997796476</R22>
+					</CFrame>
+				</OptionalCoordinateFrame>
+			</Properties>
+			<Item class="Animation" referent="RBXD16AB31594CF4ABF88FCAC13DB56D763">
+				<Properties>
+					<Content name="AnimationId"><url>http://www.roblox.com/Asset?ID=74813494</url></Content>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">RightSlash</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">0547544a8c8616f70527844f00004216</UniqueId>
+				</Properties>
+			</Item>
+			<Item class="LocalScript" referent="RBXE99F6987E1764C898236156110911415">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<bool name="Disabled">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">LocalScript</string>
+					<token name="RunContext">0</token>
+					<string name="ScriptGuid">{F8C29ABA-E00D-46F5-8613-E8610B4763AF}</string>
+					<ProtectedString name="Source"><![CDATA[--Made by Stickmasterluke
+
+
+local sp=script.Parent
+
+
+cooldown=.5
+
+
+debris=game:GetService("Debris")
+check=true
+
+function waitfor(parent,name)
+	while true do
+		local child=parent:FindFirstChild(name)
+		if child~=nil then
+			return child
+		end
+		wait()
+	end
+end
+
+local handle=waitfor(sp,"Handle")
+local debris=game:GetService("Debris")
+
+function randomcolor()
+	if handle then
+		local m=handle:FindFirstChild("Mesh")
+		if m~=nil then
+			m.VertexColor=Vector3.new(math.random(1,2),math.random(1,2),math.random(1,2))*.5
+		end
+	end
+end
+
+function onButton1Down(mouse)
+	if check then
+		check=false
+		mouse.Icon="rbxasset://textures\\GunWaitCursor.png"
+		local h=sp.Parent:FindFirstChild("Humanoid")
+		local t=sp.Parent:FindFirstChild("Torso")
+		local anim=sp:FindFirstChild("RightSlash")
+		if anim and t and h then
+			theanim=h:LoadAnimation(anim)
+			theanim:Play(nil,nil,1.5)
+			if theanim and h.Health>0 then
+				local sound=sp.Handle:FindFirstChild("SlashSound")
+				if sound then
+					sound:Play()
+				end
+				wait(.25)
+				handle.Transparency=1
+				local p=handle:clone()
+				p.Name="Effect"
+				p.CanCollide=false
+				p.Transparency=0
+				p.Script.Disabled=false
+				local tag=Instance.new("ObjectValue")
+				tag.Name="creator"
+				tag.Value=h
+				tag.Parent=p
+				p.Touched:connect(print)
+				p.RotVelocity=Vector3.new(0,0,0)
+				p.Velocity=(mouse.Hit.p-p.Position).unit*100+Vector3.new(0,10,0)
+				p.CFrame=CFrame.new(handle.Position,mouse.Hit.p)*CFrame.Angles(-math.pi/2,0,0)
+				debris:AddItem(p,20+math.random()*5)
+				p.Parent=game.Workspace
+			end
+		end
+		wait(cooldown-.25)
+		mouse.Icon="rbxasset://textures\\GunCursor.png"
+		randomcolor()
+		handle.Transparency=0
+		check=true
+	end
+end
+
+sp.Equipped:connect(function(mouse)
+	if mouse==nil then
+		print("Mouse not found")
+		return 
+	end
+	equipped=true
+	mouse.Icon="rbxasset://textures\\GunCursor.png"
+	mouse.Button1Down:connect(function()
+		onButton1Down(mouse)
+	end)
+end)
+
+sp.Unequipped:connect(function()
+	equipped=false
+	handle.Transparency=0
+	randomcolor()
+end)
+
+
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">0547544a8c8616f70527844f00004217</UniqueId>
+				</Properties>
+			</Item>
+			<Item class="Part" referent="RBX75B74586DF9548A897D28B3A13B09490">
+				<Properties>
+					<bool name="Anchored">false</bool>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<float name="BackParamA">-0.5</float>
+					<float name="BackParamB">0.5</float>
+					<token name="BackSurface">0</token>
+					<token name="BackSurfaceInput">0</token>
+					<float name="BottomParamA">-0.5</float>
+					<float name="BottomParamB">0.5</float>
+					<token name="BottomSurface">0</token>
+					<token name="BottomSurfaceInput">0</token>
+					<CoordinateFrame name="CFrame">
+						<X>1.86886144</X>
+						<Y>5.35414982</Y>
+						<Z>-2.96196008</Z>
+						<R00>0.998010993</R00>
+						<R01>0.0151043087</R01>
+						<R02>0.0611902475</R02>
+						<R10>-0.0135554103</R10>
+						<R11>0.999578476</R11>
+						<R12>-0.0256483406</R12>
+						<R20>-0.0615519173</R20>
+						<R21>0.0247680303</R21>
+						<R22>0.997796118</R22>
+					</CoordinateFrame>
+					<bool name="CanCollide">false</bool>
+					<bool name="CanQuery">true</bool>
+					<bool name="CanTouch">true</bool>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="CastShadow">true</bool>
+					<string name="CollisionGroup">Default</string>
+					<int name="CollisionGroupId">0</int>
+					<Color3uint8 name="Color3uint8">4291677645</Color3uint8>
+					<PhysicalProperties name="CustomPhysicalProperties">
+						<CustomPhysics>false</CustomPhysics>
+					</PhysicalProperties>
+					<bool name="DefinesCapabilities">false</bool>
+					<bool name="EnableFluidForces">true</bool>
+					<float name="FrontParamA">-0.5</float>
+					<float name="FrontParamB">0.5</float>
+					<token name="FrontSurface">0</token>
+					<token name="FrontSurfaceInput">0</token>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<float name="LeftParamA">-0.5</float>
+					<float name="LeftParamB">0.5</float>
+					<token name="LeftSurface">0</token>
+					<token name="LeftSurfaceInput">0</token>
+					<bool name="Locked">true</bool>
+					<bool name="Massless">false</bool>
+					<token name="Material">256</token>
+					<string name="MaterialVariantSerialized"></string>
+					<string name="Name">Handle</string>
+					<CoordinateFrame name="PivotOffset">
+						<X>0</X>
+						<Y>0</Y>
+						<Z>0</Z>
+						<R00>1</R00>
+						<R01>0</R01>
+						<R02>0</R02>
+						<R10>0</R10>
+						<R11>1</R11>
+						<R12>0</R12>
+						<R20>0</R20>
+						<R21>0</R21>
+						<R22>1</R22>
+					</CoordinateFrame>
+					<float name="Reflectance">0</float>
+					<float name="RightParamA">-0.5</float>
+					<float name="RightParamB">0.5</float>
+					<token name="RightSurface">0</token>
+					<token name="RightSurfaceInput">0</token>
+					<int name="RootPriority">0</int>
+					<Vector3 name="RotVelocity">
+						<X>0</X>
+						<Y>0</Y>
+						<Z>0</Z>
+					</Vector3>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<float name="TopParamA">-0.5</float>
+					<float name="TopParamB">0.5</float>
+					<token name="TopSurface">0</token>
+					<token name="TopSurfaceInput">0</token>
+					<float name="Transparency">0</float>
+					<UniqueId name="UniqueId">0547544a8c8616f70527844f00004218</UniqueId>
+					<Vector3 name="Velocity">
+						<X>0</X>
+						<Y>0</Y>
+						<Z>0</Z>
+					</Vector3>
+					<token name="formFactorRaw">3</token>
+					<token name="shape">1</token>
+					<Vector3 name="size">
+						<X>0.400000006</X>
+						<Y>1.5</Y>
+						<Z>0.200000003</Z>
+					</Vector3>
+				</Properties>
+				<Item class="SpecialMesh" referent="RBX8CB38C0F3F034FFC8A2ABFC1919DF6EF">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="MeshId"><url>http://www.roblox.com/asset/?id=107378400</url></Content>
+						<token name="MeshType">5</token>
+						<string name="Name">Mesh</string>
+						<Vector3 name="Offset">
+							<X>0</X>
+							<Y>0</Y>
+							<Z>0</Z>
+						</Vector3>
+						<Vector3 name="Scale">
+							<X>1.10000002</X>
+							<Y>1.20000005</Y>
+							<Z>1.20000005</Z>
+						</Vector3>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<Content name="TextureId"><url>http://www.roblox.com/asset/?id=107378338</url></Content>
+						<UniqueId name="UniqueId">0547544a8c8616f70527844f00004219</UniqueId>
+						<Vector3 name="VertexColor">
+							<X>2</X>
+							<Y>2</Y>
+							<Z>2</Z>
+						</Vector3>
+					</Properties>
+				</Item>
+				<Item class="Sound" referent="RBXB99771C782124C3288986C177F33A822">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<float name="EmitterSize">10</float>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<NumberRange name="LoopRegion">0 60000 </NumberRange>
+						<bool name="Looped">false</bool>
+						<string name="Name">SlashSound</string>
+						<bool name="PlayOnRemove">false</bool>
+						<NumberRange name="PlaybackRegion">0 60000 </NumberRange>
+						<bool name="PlaybackRegionsEnabled">false</bool>
+						<float name="PlaybackSpeed">1</float>
+						<bool name="Playing">false</bool>
+						<token name="RollOffMode">0</token>
+						<Ref name="SoundGroup">null</Ref>
+						<Content name="SoundId"><url>rbxasset://sounds//swordslash.wav</url></Content>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<double name="TimePosition">0</double>
+						<UniqueId name="UniqueId">0547544a8c8616f70527844f0000421a</UniqueId>
+						<float name="Volume">0.699999988</float>
+						<float name="xmlRead_MaxDistance_3">10000</float>
+					</Properties>
+				</Item>
+				<Item class="Script" referent="RBX841B5799EAAB4F61AB19D9C1B8BB689A">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">true</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">Script</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{37AE8DEC-7103-4681-9618-AEECC0CE6623}</string>
+						<ProtectedString name="Source"><![CDATA[--Stickmasterluke
+
+
+sp=script.Parent
+
+
+function waitfor(a,b)
+	while a:FindFirstChild(b)==nil do
+		a.ChildAdded:wait()
+	end
+	return a:FindFirstChild(b)
+end
+
+local tag=waitfor(sp,"creator")
+attached=false
+
+
+sp.Touched:connect(function(hit)
+	if hit and hit.Parent~=nil and attached==false then
+		if string.sub(hit.Name,1,6)~="Handle" and string.sub(hit.Name,1,6)~="Effect" and hit.Name~="Left Leg" and hit.Name~="Right Leg" and attached==false then
+			attached=true
+			local h=hit.Parent:FindFirstChild("Humanoid")
+			if h~=nil then
+				if tag~=nil and tag.Value~=h then
+					local w=Instance.new("Weld")
+					w.Part0=hit
+					w.Part1=sp
+					w.Name="Bite"
+					local stickcf=CFrame.new(hit.CFrame.p,sp.Position)*CFrame.new(0,0,-1)*CFrame.Angles(math.pi/2,math.random()*math.pi*2,0)
+					w.C1=stickcf:inverse()*hit.CFrame
+					w.Parent=sp
+					sp.CanCollide=false
+					--tag:clone().Parent=h
+					--h:TakeDamage(16)	--Suddenly weaponized eating utensils
+				else
+					attached=false
+				end
+			else
+				local w=Instance.new("Weld")
+				w.Part0=hit
+				w.Part1=sp
+				w.Name="Bite"
+				w.C1=sp.CFrame:inverse()*hit.CFrame
+				w.Parent=sp
+				sp.CanCollide=false
+			end
+			if attached then
+				local sound=sp:FindFirstChild("DoinkSound")
+				if sound~=nil then
+					sound.Pitch=1+(math.random()*.35)
+					sound:play()
+				end
+			end
+		end
+	end
+end)
+
+wait(.05)
+if not attached then
+	sp.CanCollide=true
+end
+wait(25)
+sp:remove()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">0547544a8c8616f70527844f0000421b</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="Sound" referent="RBXF455A4F656374B088379A55C6DFC569C">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<float name="EmitterSize">10</float>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<NumberRange name="LoopRegion">0 60000 </NumberRange>
+						<bool name="Looped">false</bool>
+						<string name="Name">DoinkSound</string>
+						<bool name="PlayOnRemove">false</bool>
+						<NumberRange name="PlaybackRegion">0 60000 </NumberRange>
+						<bool name="PlaybackRegionsEnabled">false</bool>
+						<float name="PlaybackSpeed">1</float>
+						<bool name="Playing">false</bool>
+						<token name="RollOffMode">0</token>
+						<Ref name="SoundGroup">null</Ref>
+						<Content name="SoundId"><url>http://www.roblox.com/asset/?id=107433821</url></Content>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<double name="TimePosition">0</double>
+						<UniqueId name="UniqueId">0547544a8c8616f70527844f0000421c</UniqueId>
+						<float name="Volume">1</float>
+						<float name="xmlRead_MaxDistance_3">10000</float>
+					</Properties>
+				</Item>
+			</Item>
 		</Item>
 	</Item>
 	<Item class="TimerService" referent="RBX85088D2A4FD045C9A93E96F312CD10D4">
@@ -1170,16 +1661,60 @@ function class:init(userId: number)
 	self.UserId = userId
 	self.LoaderJanitor = Janitor.new()
 	self.Description = game.Players:GetHumanoidDescriptionFromUserId(userId)
-	self.SpawnTween = RandomInitialisier{
-		--{require(script.Parent.Parent.SpawnAnims.InstantSpawn), {}},
+
+	-- Spawning is initialised on character load, but selected by random upon first init.
+	self.SpawnInit = RandomInitialisier{
+		--{require(script.Parent.Parent.SpawnAnims.BaseSpawn), {}},
 		{require(script.Parent.Parent.SpawnAnims.FallSpawn), {}},
+	}
+
+	self.MoveInit = RandomInitialisier{
+		{require(script.Parent.Parent.MoveAnims.SpringMove), {}},
+		{require(script.Parent.Parent.MoveAnims.TweenMove), {}},
+	}
+
+	self.PathfindInit = RandomInitialisier{
+		{require(script.Parent.Parent.Pathfind.BasePathfind), {}},
 	}
 end
 
 
 function class:load(spawn_location: CFrame): nil
 	self:clean()
-	self:spawn(spawn_location)
+	self.CharacterModel = game.Players:CreateHumanoidModelFromDescription(
+		self.Description,
+		Enum.HumanoidRigType.R15,
+		Enum.AssetTypeVerification.ClientOnly
+	)
+
+	self.MoveObj = self.MoveInit()
+	self.SpawnObj = self.SpawnInit()
+	self.PathfindObj = self.PathfindInit()
+	self.LoaderJanitor:Add(self.MoveObj, 'destroy')
+	self.LoaderJanitor:Add(self.SpawnObj, 'destroy')
+	self.LoaderJanitor:Add(self.PathfindObj, 'destroy')
+
+	self:__skin()
+	self:__spawn(spawn_location)
+end
+
+
+-- Return false until 'to_cf' is close enough to the character's current position.
+function class:navigate(to_cf: CFrame): boolean
+	local from_cf: CFrame = self.CharacterModel:GetPrimaryPartCFrame()
+	local mid_cf: CFrame = self.PathfindObj:perform(from_cf, to_cf)
+
+	local dist = (
+		mid_cf.Position -
+		from_cf.Position
+	).Magnitude
+
+	if dist < 1 then
+		return true
+	end
+
+	self.MoveObj:perform(self.CharacterModel, mid_cf)
+	return false
 end
 
 
@@ -1188,28 +1723,14 @@ function class:clean(): nil
 end
 
 
-function class:skin(): nil
+function class:__skin(): nil
 	self.CharacterModel.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
 end
 
 
-function class:spawn(spawn_location: CFrame?): nil
-	self.CharacterModel = game.Players:CreateHumanoidModelFromDescription(
-		self.Description,
-		Enum.HumanoidRigType.R15,
-		Enum.AssetTypeVerification.ClientOnly
-	)
-	self:skin()
-
+function class:__spawn(spawn_location: CFrame): nil
 	self.CharacterModel.Parent = game.Workspace
-	if spawn_location then
-		self.LoaderJanitor:Add(
-			self.SpawnTween:perform(
-				self.CharacterModel,
-				spawn_location
-			)
-		)
-	end
+	self.SpawnObj:perform(self.CharacterModel, spawn_location)
 
 	-- Check if killed whilst spawning, else add 'died' event.
 	if self.CharacterModel.Humanoid.Health <= 0 then self:clean() return end
@@ -1240,7 +1761,7 @@ local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
 local class = ObjectOrientate(HumanoidMonster)
 
 
-function class:init(userId: number, colour: Color3)
+function class:init(userId: number, colour: Color3, reflectance: number, transparency: number)
 	HumanoidMonster.init(self, userId)
 	self.Colour = colour
 	self.Description.HeadColor = colour
@@ -1249,11 +1770,13 @@ function class:init(userId: number, colour: Color3)
 	self.Description.LeftLegColor = colour
 	self.Description.LeftArmColor = colour
 	self.Description.TorsoColor = colour
+	self.Reflectance = reflectance or 1
+	self.Transparency = transparency or 0
 end
 
 
-function class:skin(): nil
-	HumanoidMonster.skin(self)
+function class:__skin(): nil
+	HumanoidMonster.__skin(self)
 	for _, part in self.CharacterModel:GetDescendants() do
 		if part:IsA'MeshPart' then
 			part.TextureID = ''
@@ -1267,6 +1790,8 @@ function class:skin(): nil
 		elseif not part:IsA'BasePart' then
 			continue
 		end
+		part.Transparency = self.Transparency
+		part.Reflectance = self.Reflectance
 		part.Color = self.Colour
 	end
 end
@@ -1301,15 +1826,13 @@ return class]]></ProtectedString>
 						<ProtectedString name="Source"><![CDATA[local ReplStor = game:GetService('ReplicatedStorage')
 local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
 local RemoteTween = require(script.Parent.Parent.Knit.RemoteTween)
-local Janitor = require(ReplStor.Shared.Janitor)
+local BaseSpawn = require(script.Parent.BaseSpawn)
+local class = ObjectOrientate(BaseSpawn)
 
-local class = ObjectOrientate()
-function class:init()
-end
-
-function class:perform(char: Model, cframe: CFrame): typeof(Janitor.new())
+function class:perform(char: Model, cframe: CFrame): nil
 	local root_part = char:FindFirstChild('HumanoidRootPart')
 	root_part.Anchored = true
+
 	local angle = 2 * math.random() * math.pi
 	local x, z = math.sin(angle), math.cos(angle)
 	char:SetPrimaryPartCFrame(
@@ -1317,6 +1840,7 @@ function class:perform(char: Model, cframe: CFrame): typeof(Janitor.new())
 		CFrame.Angles(0, math.pi, 0) +
 		1e2 * Vector3.new(x, 1, z)
 	)
+
 	RemoteTween:FireAllClients(
 		root_part,
 		TweenInfo.new(7),
@@ -1325,9 +1849,9 @@ function class:perform(char: Model, cframe: CFrame): typeof(Janitor.new())
 		},
 		true
 	)
+
 	task.wait()
 	root_part.Anchored = false
-	return Janitor.new()
 end
 
 return class]]></ProtectedString>
@@ -1336,32 +1860,28 @@ return class]]></ProtectedString>
 						<UniqueId name="UniqueId">2c20edf9fbd35344052687a500003f9d</UniqueId>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX35D6267675E24A538E46AC54100F764B">
+				<Item class="ModuleScript" referent="RBXDAB18B59F53147AB9C97E15005B7F61D">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 						<bool name="DefinesCapabilities">false</bool>
 						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 						<Content name="LinkedSource"><null></null></Content>
-						<string name="Name">InstantSpawn</string>
-						<string name="ScriptGuid">{4685BB31-5B36-4755-8126-677DCB7FACD2}</string>
+						<string name="Name">BaseSpawn</string>
+						<string name="ScriptGuid">{75A69EF4-4078-47AC-8D16-C7E84D701F36}</string>
 						<ProtectedString name="Source"><![CDATA[local ReplStor = game:GetService('ReplicatedStorage')
 local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
-local Janitor = require(ReplStor.Shared.Janitor)
-local class = ObjectOrientate()
+local JanitorClass = require(ReplStor.Shared.Util.JanitorClass)
+local class = ObjectOrientate(JanitorClass)
 
-function class:init()
-end
-
-function class:perform(obj: Model, cframe: CFrame): typeof(Janitor.new())
+function class:perform(obj: Model, cframe: CFrame): nil
 	obj:SetPrimaryPartCFrame(cframe)
-	return Janitor.new()
 end
 
 return class]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">2c20edf9fbd35344052687a500003f9e</UniqueId>
+						<UniqueId name="UniqueId">0547544a8c8616f70527844f00003d15</UniqueId>
 					</Properties>
 				</Item>
 			</Item>
@@ -1380,7 +1900,7 @@ task.spawn(function()
 	local entity = class.new(1630228, Color3.fromHex('#0078d7'))
 	while true do
 		entity:load(CFrame.new(0, 13, 0))
-		task.wait(13)
+		repeat until entity:navigate(CFrame.new(0, 0, 666))
 	end
 end)
 
@@ -1477,6 +1997,193 @@ return RemoteTweenService]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 						<UniqueId name="UniqueId">2c20edf9fbd35344052687a50000416a</UniqueId>
+					</Properties>
+				</Item>
+			</Item>
+			<Item class="Folder" referent="RBX0A2C05E7B8A4400CA1FE5D2547263627">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">MoveAnims</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">0547544a8c8616f70527844f00003d12</UniqueId>
+				</Properties>
+				<Item class="ModuleScript" referent="RBXA476612995024E7C9A917E5D894777DD">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">SpringMove</string>
+						<string name="ScriptGuid">{DB800019-A276-496E-B74C-719A4C42EE6D}</string>
+						<ProtectedString name="Source"><![CDATA[local ReplStor = game:GetService('ReplicatedStorage')
+local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
+local BaseMove = require(script.Parent.BaseMove)
+local class = ObjectOrientate(BaseMove)
+
+function class:init()
+	BaseMove.init(self)
+	local targett = Instance.new('Part')
+	targett.Shape = Enum.PartType.Ball
+	targett.Size = Vector3.new(1, 1, 1)
+	targett.CanCollide = false
+	targett.Transparency = 1
+	targett.Anchored = true
+	local attachment = Instance.new('Attachment', targett)
+	local spring = Instance.new('SpringConstraint', attachment)
+	spring.Attachment1 = attachment
+	spring.FreeLength = 1e-1
+	spring.Stiffness = 1e4
+	spring.Damping = 3e3
+	self.Spring = spring
+	self.Target = targett
+	self.Janitor:Add(targett)
+	self.Janitor:Add(attachment)
+	self.Janitor:Add(spring)
+end
+
+function class:perform(obj: Model, cframe: CFrame): nil
+	self.Spring.Attachment0 = obj.PrimaryPart:FindFirstChild('RootAttachment')
+	self.Target.CFrame = cframe
+	self.Target.Parent = obj
+	repeat task.wait() until self.Spring.CurrentLength < 1
+end
+
+return class]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">0547544a8c8616f70527844f00003d13</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="ModuleScript" referent="RBX5BD414C1FBDC4F858EBF948018BA7B32">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">BaseMove</string>
+						<string name="ScriptGuid">{E2C94701-34B0-4F52-B7B5-955E1300AB26}</string>
+						<ProtectedString name="Source"><![CDATA[local ReplStor = game:GetService('ReplicatedStorage')
+local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
+local JanitorClass = require(ReplStor.Shared.Util.JanitorClass)
+local class = ObjectOrientate(JanitorClass)
+
+function class:perform(obj: Model, cframe: CFrame): nil
+	obj:SetPrimaryPartCFrame(cframe)
+	task.wait(1)
+end
+
+return class]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">0547544a8c8616f70527844f00003db0</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="ModuleScript" referent="RBX3F246CF9832941D18FDCC64F86688552">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">TweenMove</string>
+						<string name="ScriptGuid">{4C708089-D471-4A00-BF72-6B31CC7EFE73}</string>
+						<ProtectedString name="Source"><![CDATA[local ReplStor = game:GetService('ReplicatedStorage')
+local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
+local RemoteTween = require(script.Parent.Parent.Knit.RemoteTween)
+local BaseMove = require(script.Parent.BaseMove)
+local class = ObjectOrientate(BaseMove)
+
+function class:perform(obj: Model, cframe: CFrame): nil
+	local root_part = obj.PrimaryPart
+	root_part.Anchored = true
+
+	local random_rot = CFrame.fromAxisAngle(
+		Vector3.new(
+			math.random(),
+			math.random(),
+			math.random()
+		),
+		math.random()
+
+	)
+	local tween_info = TweenInfo.new(
+		1,
+		Enum.EasingStyle.Sine,
+		Enum.EasingDirection.InOut
+	)
+
+	RemoteTween:FireAllClients(
+		root_part,
+		tween_info,
+		{
+			CFrame = cframe * random_rot
+		},
+		true
+	)
+	root_part.Anchored = false
+end
+
+return class]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">0547544a8c8616f70527844f00004037</UniqueId>
+					</Properties>
+				</Item>
+			</Item>
+			<Item class="Folder" referent="RBXE1EBD0B1A36943439DCF4B2ECF3204A1">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">Pathfind</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">0547544a8c8616f70527844f00003dab</UniqueId>
+				</Properties>
+				<Item class="ModuleScript" referent="RBXFA2CAC7571844EFCB5964A2AA25F5A0E">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">BasePathfind</string>
+						<string name="ScriptGuid">{C23E1E91-BE48-4277-B00F-018B73FA4763}</string>
+						<ProtectedString name="Source"><![CDATA[local ReplStor = game:GetService('ReplicatedStorage')
+local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
+local JanitorClass = require(ReplStor.Shared.Util.JanitorClass)
+local class = ObjectOrientate(JanitorClass)
+
+function class:init(step_dist: number)
+	JanitorClass.init(self)
+	self.StepDistance = step_dist or 4
+end
+
+function class:perform(from_cf: CFrame, to_cf: CFrame): CFrame
+	local dist = (
+		to_cf.Position -
+		from_cf.Position
+	).Magnitude
+
+	if dist == 0 then
+		return to_cf
+	end
+
+	local alpha = math.min(1, self.StepDistance / dist)
+	return from_cf:Lerp(to_cf, alpha)
+end
+
+return class]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">0547544a8c8616f70527844f00003dac</UniqueId>
 					</Properties>
 				</Item>
 			</Item>
@@ -19092,10 +19799,11 @@ return Promise
 						<string name="Name">RandomInitialisier</string>
 						<string name="ScriptGuid">{A6DF184E-1D1E-4B4D-8F12-57F58DEA88FF}</string>
 						<ProtectedString name="Source"><![CDATA[-- Takes in a list of 2-lists, where [1] is a class and [2] is a table of constructor args.
--- Returns a randomly-selected instance of one of the classes we passed in that is constructed using the args we also provided.
-return function(options: {{new: (...any)->({})}}): {}
+-- Returns a function that makes an instance of a randomly-selected class from that which we passed in.
+return function(options: {{new: (...any)->({})}}): ()->{}
 	local option = options[math.random(#options)]
-	return option[1].new(unpack(option[2]))
+	return function() return option[1].new(unpack(option[2]))
+	end
 end]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
@@ -19123,7 +19831,7 @@ return function(...)
 		end
 	end
 
-	class.init = function(...) end
+	class.init = class.init or function(...) end
 	class.__index = class
 
 	-- Each class we make has an implicit 'new' method which then calls its respective 'init' method.
@@ -19141,44 +19849,31 @@ end]]></ProtectedString>
 						<UniqueId name="UniqueId">2c20edf9fbd35344052687a500003fa1</UniqueId>
 					</Properties>
 				</Item>
-			</Item>
-			<Item class="Folder" referent="RBX063F3B7FD50145CA804E8D4425A57B08">
-				<Properties>
-					<BinaryString name="AttributesSerialize"></BinaryString>
-					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-					<bool name="DefinesCapabilities">false</bool>
-					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-					<string name="Name">MoveAnims</string>
-					<int64 name="SourceAssetId">-1</int64>
-					<BinaryString name="Tags"></BinaryString>
-					<UniqueId name="UniqueId">2c20edf9fbd35344052687a500003f65</UniqueId>
-				</Properties>
-				<Item class="ModuleScript" referent="RBXB4E09685C01947BA83BD585D05BE3F76">
+				<Item class="ModuleScript" referent="RBXC5A983F8A28B4A4BB3CE3FE4A37AFAAB">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 						<bool name="DefinesCapabilities">false</bool>
 						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 						<Content name="LinkedSource"><null></null></Content>
-						<string name="Name">SpringMove</string>
-						<string name="ScriptGuid">{13E430A8-8CFF-4796-9C7D-CD6C92F4DD11}</string>
-						<ProtectedString name="Source"><![CDATA[local ReplStor = game:GetService('ReplicatedStorage')
-local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
-local Janitor = require(ReplStor.Shared.Janitor)
+						<string name="Name">JanitorClass</string>
+						<string name="ScriptGuid">{B8235DB7-A042-4EAA-ADA1-CA5F4E42DCCF}</string>
+						<ProtectedString name="Source"><![CDATA[local ObjectOrientate = require(script.Parent.ObjectOrientate)
+local Janitor = require(script.Parent.Parent.Janitor)
 local class = ObjectOrientate()
 
 function class:init()
+	self.Janitor = Janitor.new()
 end
 
-function class:perform(obj: Model, cframe: CFrame): typeof(Janitor.new())
-	obj:SetPrimaryPartCFrame(cframe)
-	return Janitor.new()
+function class:destroy()
+	self.Janitor:Cleanup()
 end
 
 return class]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">2c20edf9fbd35344052687a500003f66</UniqueId>
+						<UniqueId name="UniqueId">0547544a8c8616f70527844f00003dae</UniqueId>
 					</Properties>
 				</Item>
 			</Item>

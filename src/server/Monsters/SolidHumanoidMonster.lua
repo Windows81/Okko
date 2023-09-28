@@ -4,7 +4,7 @@ local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
 local class = ObjectOrientate(HumanoidMonster)
 
 
-function class:init(userId: number, colour: Color3)
+function class:init(userId: number, colour: Color3, reflectance: number, transparency: number)
 	HumanoidMonster.init(self, userId)
 	self.Colour = colour
 	self.Description.HeadColor = colour
@@ -13,11 +13,13 @@ function class:init(userId: number, colour: Color3)
 	self.Description.LeftLegColor = colour
 	self.Description.LeftArmColor = colour
 	self.Description.TorsoColor = colour
+	self.Reflectance = reflectance or 1
+	self.Transparency = transparency or 0
 end
 
 
-function class:skin(): nil
-	HumanoidMonster.skin(self)
+function class:__skin(): nil
+	HumanoidMonster.__skin(self)
 	for _, part in self.CharacterModel:GetDescendants() do
 		if part:IsA'MeshPart' then
 			part.TextureID = ''
@@ -31,6 +33,8 @@ function class:skin(): nil
 		elseif not part:IsA'BasePart' then
 			continue
 		end
+		part.Transparency = self.Transparency
+		part.Reflectance = self.Reflectance
 		part.Color = self.Colour
 	end
 end

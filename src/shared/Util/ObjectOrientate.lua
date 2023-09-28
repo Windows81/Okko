@@ -10,7 +10,7 @@ return function(...)
 		end
 	end
 
-	class.init = function(...) end
+	class.init = class.init or function(...) end
 	class.__index = class
 
 	-- Each class we make has an implicit 'new' method which then calls its respective 'init' method.

@@ -7,6 +7,7 @@ local class = ObjectOrientate(BaseSpawn)
 function class:perform(char: Model, cframe: CFrame): nil
 	local root_part = char:FindFirstChild('HumanoidRootPart')
 	root_part.Anchored = true
+
 	local angle = 2 * math.random() * math.pi
 	local x, z = math.sin(angle), math.cos(angle)
 	char:SetPrimaryPartCFrame(
@@ -14,6 +15,7 @@ function class:perform(char: Model, cframe: CFrame): nil
 		CFrame.Angles(0, math.pi, 0) +
 		1e2 * Vector3.new(x, 1, z)
 	)
+
 	RemoteTween:FireAllClients(
 		root_part,
 		TweenInfo.new(7),
@@ -22,6 +24,7 @@ function class:perform(char: Model, cframe: CFrame): nil
 		},
 		true
 	)
+
 	task.wait()
 	root_part.Anchored = false
 end

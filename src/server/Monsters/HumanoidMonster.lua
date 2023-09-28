@@ -9,12 +9,60 @@ function class:init(userId: number)
 	self.UserId = userId
 	self.LoaderJanitor = Janitor.new()
 	self.Description = game.Players:GetHumanoidDescriptionFromUserId(userId)
+
+	-- Spawning is initialised on character load, but selected by random upon first init.
+	self.SpawnInit = RandomInitialisier{
+		--{require(script.Parent.Parent.SpawnAnims.BaseSpawn), {}},
+		{require(script.Parent.Parent.SpawnAnims.FallSpawn), {}},
+	}
+
+	self.MoveInit = RandomInitialisier{
+		{require(script.Parent.Parent.MoveAnims.SpringMove), {}},
+		{require(script.Parent.Parent.MoveAnims.TweenMove), {}},
+	}
+
+	self.PathfindInit = RandomInitialisier{
+		{require(script.Parent.Parent.Pathfind.BasePathfind), {}},
+	}
 end
 
 
 function class:load(spawn_location: CFrame): nil
 	self:clean()
-	self:spawn(spawn_location)
+	self.CharacterModel = game.Players:CreateHumanoidModelFromDescription(
+		self.Description,
+		Enum.HumanoidRigType.R15,
+		Enum.AssetTypeVerification.ClientOnly
+	)
+
+	self.MoveObj = self.MoveInit()
+	self.SpawnObj = self.SpawnInit()
+	self.PathfindObj = self.PathfindInit()
+	self.LoaderJanitor:Add(self.MoveObj, 'destroy')
+	self.LoaderJanitor:Add(self.SpawnObj, 'destroy')
+	self.LoaderJanitor:Add(self.PathfindObj, 'destroy')
+
+	self:__skin()
+	self:__spawn(spawn_location)
+end
+
+
+-- Return false until 'to_cf' is close enough to the character's current position.
+function class:navigate(to_cf: CFrame): boolean
+	local from_cf: CFrame = self.CharacterModel:GetPrimaryPartCFrame()
+	local mid_cf: CFrame = self.PathfindObj:perform(from_cf, to_cf)
+
+	local dist = (
+		mid_cf.Position -
+		from_cf.Position
+	).Magnitude
+
+	if dist < 1 then
+		return true
+	end
+
+	self.MoveObj:perform(self.CharacterModel, mid_cf)
+	return false
 end
 
 
@@ -23,29 +71,14 @@ function class:clean(): nil
 end
 
 
-function class:skin(): nil
+function class:__skin(): nil
 	self.CharacterModel.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
 end
 
 
-function class:spawn(spawn_location: CFrame): nil
-	self.CharacterModel = game.Players:CreateHumanoidModelFromDescription(
-		self.Description,
-		Enum.HumanoidRigType.R15,
-		Enum.AssetTypeVerification.ClientOnly
-	)
-
+function class:__spawn(spawn_location: CFrame): nil
 	self.CharacterModel.Parent = game.Workspace
-	self:skin()
-
-	-- The spawn animation is selected at random.
-	local spawn_tween = RandomInitialisier{
-		--{require(script.Parent.Parent.SpawnAnims.BaseSpawn), {}},
-		{require(script.Parent.Parent.SpawnAnims.FallSpawn), {}},
-	}
-
-	self.LoaderJanitor:Add(spawn_tween, 'destroy')
-	spawn_tween:perform(self.CharacterModel, spawn_location)
+	self.SpawnObj:perform(self.CharacterModel, spawn_location)
 
 	-- Check if killed whilst spawning, else add 'died' event.
 	if self.CharacterModel.Humanoid.Health <= 0 then self:clean() return end
