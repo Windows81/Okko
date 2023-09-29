@@ -1,6 +1,6 @@
 local ReplStor = game:GetService('ReplicatedStorage')
 local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
-local RemoteTween = require(script.Parent.Parent.Knit.RemoteTween)
+local RemoteTween = require(script.Parent.Parent.Parent.Knit.RemoteTween)
 local BaseSpawn = require(script.Parent.BaseSpawn)
 local class = ObjectOrientate(BaseSpawn)
 

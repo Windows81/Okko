@@ -1,11 +1,11 @@
 local ReplStor = game:GetService('ReplicatedStorage')
-local HumanoidMonster = require(script.Parent.HumanoidMonster)
+local HumanoidEntity = require(script.Parent.HumanoidEntity)
 local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
-local class = ObjectOrientate(HumanoidMonster)
+local class = ObjectOrientate(HumanoidEntity)
 
 
-function class:init(userId: number, colour: Color3, reflectance: number, transparency: number)
-	HumanoidMonster.init(self, userId)
+function class:init(spawn_location: CFrame, userId: number, colour: Color3, reflectance: number, transparency: number)
+	HumanoidEntity.init(self, spawn_location, userId)
 	self.Colour = colour
 	self.Description.HeadColor = colour
 	self.Description.RightLegColor = colour
@@ -19,7 +19,7 @@ end
 
 
 function class:__skin(): nil
-	HumanoidMonster.__skin(self)
+	HumanoidEntity.__skin(self)
 	for _, part in self.CharacterModel:GetDescendants() do
 		if part:IsA'MeshPart' then
 			part.TextureID = ''

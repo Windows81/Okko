@@ -15,7 +15,7 @@ function class:init()
 	local spring = Instance.new('SpringConstraint', attachment)
 	spring.Attachment1 = attachment
 	spring.FreeLength = 1e-1
-	spring.Stiffness = 1e4
+	spring.Stiffness = 7e3
 	spring.Damping = 3e3
 	self.Spring = spring
 	self.Target = targett
