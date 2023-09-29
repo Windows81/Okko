@@ -14,7 +14,9 @@ end
 -- Adds one leaderstat kill to each player within some stud distance of the dead character.
 function class:die(): nil
 	SolidHumanoidEntity.die(self)
-	local obj_pos = self.CharacterModel.PrimaryPart.Position
+	local prim_part = self.CharacterModel.PrimaryPart
+	if not prim_part then return end
+	local obj_pos = prim_part.Position
 	for _, player in game.Players:GetPlayers() do
 		local char = player.Character
 		if not char then continue end
@@ -44,10 +46,13 @@ function class:__skin(): nil
 				return
 			end
 
+			-- Ensures that enemies aren't killing each other.
+			local player = game.Players:GetPlayerFromCharacter(char)
+			if not player then return end
+
 			debounce = true
 			humanoid:TakeDamage(self.Damage)
-			local player = game.Players:GetPlayerFromCharacter(char)
-			if player and humanoid.Health <= 0 then
+			if humanoid.Health <= 0 then
 				Leaderboard.increment(player, 'Deaths')
 			end
 			task.wait(1)

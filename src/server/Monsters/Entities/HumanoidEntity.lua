@@ -18,7 +18,7 @@ function class:init(spawn_location: CFrame, description: HumanoidDescription)
 	}
 
 	self.MoveInit = RandomInitialisier{
-		--{require(script.Parent.Parent.MoveAnims.SpringMove), {}},
+		{require(script.Parent.Parent.MoveAnims.SpringMove), {}},
 		{require(script.Parent.Parent.MoveAnims.TweenMove), {5e-1 + math.random()}},
 	}
 
@@ -80,6 +80,7 @@ end
 -- Uses the instance's locator logic to move it to the next appropriate spot.
 function class:navigate(): boolean
 	local to_cf = self.LocatorObj:perform(self.CharacterModel)
+	if not to_cf then return true end
 	return self:navigate_to(to_cf)
 end
 

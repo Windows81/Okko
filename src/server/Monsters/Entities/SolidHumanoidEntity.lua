@@ -8,8 +8,6 @@ function class:init(
 	spawn_location: CFrame,
 	description: HumanoidDescription,
 	colour: Color3,
-	reflectance: number,
-	transparency: number,
 	...
 )
 	HumanoidEntity.init(self, spawn_location, description, ...)

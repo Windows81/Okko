@@ -15,8 +15,8 @@ function class:init(...)
 	local spring = Instance.new('SpringConstraint', attachment)
 	spring.Attachment0 = attachment
 	spring.FreeLength = 1e-1
-	spring.Stiffness = 1e4
-	spring.Damping = 5e3
+	spring.Stiffness = 5000
+	spring.Damping = 500
 	self.Spring = spring
 	self.Target = targett
 	self.Janitor:Add(targett)
@@ -28,7 +28,8 @@ function class:perform(obj: Model, cframe: CFrame): nil
 	self.Spring.Attachment1 = obj.PrimaryPart:FindFirstChild('RootAttachment')
 	self.Target.CFrame = cframe
 	self.Target.Parent = obj
-	repeat task.wait() until self.Spring.CurrentLength < 1
+	repeat task.wait() until self.Spring.CurrentLength < 4
+	task.wait(5e-1)
 end
 
 return class

@@ -18,7 +18,7 @@ function class:perform(from_cf: CFrame, to_cf: CFrame): CFrame
 		return to_cf
 	end
 
-	local alpha = math.min(2, self.StepDistance / dist)
+	local alpha = math.min(1.25, self.StepDistance / dist)
 	return CFrame.new(from_cf.Position:Lerp(to_cf.Position, alpha), to_cf.Position)
 end
 
