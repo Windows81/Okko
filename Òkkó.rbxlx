@@ -2823,14 +2823,14 @@ function class:__skin(): nil
 			end
 
 			local humanoid = char:FindFirstChildOfClass('Humanoid')
-			if not humanoid then
+			if not humanoid or humanoid.Health <= 0 then
 				return
 			end
 
 			debounce = true
 			humanoid:TakeDamage(self.Damage)
-			if humanoid.Health <= 0 then
-				local player = game.Players:GetPlayerFromCharacter(char)
+			local player = game.Players:GetPlayerFromCharacter(char)
+			if player and humanoid.Health <= 0 then
 				Leaderboard.increment(player, 'Deaths')
 			end
 			task.wait(1)
@@ -3015,7 +3015,7 @@ function class:perform(obj: Model, cframe: CFrame): nil
 			math.random(),
 			math.random()
 		),
-		math.random()
+		math.pi * math.random()
 
 	)
 	local tween_info = TweenInfo.new(
@@ -3082,8 +3082,8 @@ function class:perform(from_cf: CFrame, to_cf: CFrame): CFrame
 		return to_cf
 	end
 
-	local alpha = math.min(1, self.StepDistance / dist)
-	return from_cf:Lerp(to_cf, alpha)
+	local alpha = math.min(2, self.StepDistance / dist)
+	return CFrame.new(from_cf.Position:Lerp(to_cf.Position, alpha), to_cf.Position)
 end
 
 return class]]></ProtectedString>
