@@ -90,18 +90,18 @@
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<CoordinateFrame name="CFrame">
-					<X>-54.8164787</X>
-					<Y>53.5839005</Y>
-					<Z>124.386185</Z>
-					<R00>0.958621919</R00>
-					<R01>0.268088192</R01>
-					<R02>-0.0957753882</R02>
-					<R10>7.45058149e-09</R10>
-					<R11>0.336428642</R11>
-					<R12>0.941708982</R12>
-					<R20>0.284682631</R20>
-					<R21>-0.902742863</R21>
-					<R22>0.322507828</R22>
+					<X>-48.6608582</X>
+					<Y>32.4304657</Y>
+					<Z>104.322235</Z>
+					<R00>0.95593065</R00>
+					<R01>0.202055335</R01>
+					<R02>-0.213002905</R02>
+					<R10>-1.49011612e-08</R10>
+					<R11>0.725505114</R11>
+					<R12>0.688216746</R12>
+					<R20>0.293592572</R20>
+					<R21>-0.657887459</R21>
+					<R22>0.693532586</R22>
 				</CoordinateFrame>
 				<Ref name="CameraSubject">null</Ref>
 				<token name="CameraType">0</token>
@@ -110,9 +110,9 @@
 				<float name="FieldOfView">70</float>
 				<token name="FieldOfViewMode">0</token>
 				<CoordinateFrame name="Focus">
-					<X>-54.6249313</X>
-					<Y>51.7005157</Y>
-					<Z>123.74118</Z>
+					<X>-48.2348557</X>
+					<Y>31.0540428</Y>
+					<Z>102.935181</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -2427,7 +2427,7 @@ local EXTENTS = 128
 local spawn_locations = {}
 for x = -EXTENTS, EXTENTS, DISTANCE do
 	for z = -EXTENTS, EXTENTS, DISTANCE do
-		table.insert(spawn_locations, CFrame.new(x, 2, z))
+		table.insert(spawn_locations, CFrame.new(x, 4, z))
 	end
 end
 
@@ -2579,7 +2579,7 @@ function class:init(spawn_location: CFrame, description: HumanoidDescription)
 	}
 
 	self.MoveInit = RandomInitialisier{
-		--{require(script.Parent.Parent.MoveAnims.SpringMove), {}},
+		{require(script.Parent.Parent.MoveAnims.SpringMove), {}},
 		{require(script.Parent.Parent.MoveAnims.TweenMove), {5e-1 + math.random()}},
 	}
 
@@ -2641,6 +2641,7 @@ end
 -- Uses the instance's locator logic to move it to the next appropriate spot.
 function class:navigate(): boolean
 	local to_cf = self.LocatorObj:perform(self.CharacterModel)
+	if not to_cf then return true end
 	return self:navigate_to(to_cf)
 end
 
@@ -2721,8 +2722,6 @@ function class:init(
 	spawn_location: CFrame,
 	description: HumanoidDescription,
 	colour: Color3,
-	reflectance: number,
-	transparency: number,
 	...
 )
 	HumanoidEntity.init(self, spawn_location, description, ...)
@@ -2797,7 +2796,9 @@ end
 -- Adds one leaderstat kill to each player within some stud distance of the dead character.
 function class:die(): nil
 	SolidHumanoidEntity.die(self)
-	local obj_pos = self.CharacterModel.PrimaryPart.Position
+	local prim_part = self.CharacterModel.PrimaryPart
+	if not prim_part then return end
+	local obj_pos = prim_part.Position
 	for _, player in game.Players:GetPlayers() do
 		local char = player.Character
 		if not char then continue end
@@ -2827,10 +2828,13 @@ function class:__skin(): nil
 				return
 			end
 
+			-- Ensures that enemies aren't killing each other.
+			local player = game.Players:GetPlayerFromCharacter(char)
+			if not player then return end
+
 			debounce = true
 			humanoid:TakeDamage(self.Damage)
-			local player = game.Players:GetPlayerFromCharacter(char)
-			if player and humanoid.Health <= 0 then
+			if humanoid.Health <= 0 then
 				Leaderboard.increment(player, 'Deaths')
 			end
 			task.wait(1)
@@ -2873,13 +2877,18 @@ local JanitorClass = require(ReplStor.Shared.Util.JanitorClass)
 local class = ObjectOrientate(JanitorClass)
 
 -- Locates the closest player to 'obj'.
-function class:perform(obj: Model): CFrame
-	local obj_pos = obj.PrimaryPart.Position
+function class:perform(obj: Model): CFrame?
+	local prim_part = obj.PrimaryPart
+	if not prim_part then return end
+
+	local obj_pos = prim_part.Position
 	local closest_dist, closest_cf = math.huge, nil
 
 	for _, plr in game.Players:GetPlayers() do
 		if not plr.Character then continue end
-		local plr_cf = plr.Character.PrimaryPart.CFrame
+		local prim_part = plr.Character.PrimaryPart
+		if not prim_part then continue end
+		local plr_cf = prim_part.CFrame
 		local dist = (plr_cf.Position - obj_pos).Magnitude
 		if closest_dist > dist then
 			closest_cf = plr_cf
@@ -2963,8 +2972,8 @@ function class:init(...)
 	local spring = Instance.new('SpringConstraint', attachment)
 	spring.Attachment0 = attachment
 	spring.FreeLength = 1e-1
-	spring.Stiffness = 1e4
-	spring.Damping = 5e3
+	spring.Stiffness = 5000
+	spring.Damping = 500
 	self.Spring = spring
 	self.Target = targett
 	self.Janitor:Add(targett)
@@ -2976,7 +2985,8 @@ function class:perform(obj: Model, cframe: CFrame): nil
 	self.Spring.Attachment1 = obj.PrimaryPart:FindFirstChild('RootAttachment')
 	self.Target.CFrame = cframe
 	self.Target.Parent = obj
-	repeat task.wait() until self.Spring.CurrentLength < 1
+	repeat task.wait() until self.Spring.CurrentLength < 4
+	task.wait(5e-1)
 end
 
 return class]]></ProtectedString>
@@ -3082,7 +3092,7 @@ function class:perform(from_cf: CFrame, to_cf: CFrame): CFrame
 		return to_cf
 	end
 
-	local alpha = math.min(2, self.StepDistance / dist)
+	local alpha = math.min(1.25, self.StepDistance / dist)
 	return CFrame.new(from_cf.Position:Lerp(to_cf.Position, alpha), to_cf.Position)
 end
 
