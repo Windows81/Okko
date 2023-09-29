@@ -3,8 +3,8 @@ local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
 local BaseMove = require(script.Parent.BaseMove)
 local class = ObjectOrientate(BaseMove)
 
-function class:init()
-	BaseMove.init(self)
+function class:init(...)
+	BaseMove.init(self, ...)
 	local targett = Instance.new('Part')
 	targett.Shape = Enum.PartType.Ball
 	targett.Size = Vector3.new(1, 1, 1)
@@ -13,10 +13,10 @@ function class:init()
 	targett.Anchored = true
 	local attachment = Instance.new('Attachment', targett)
 	local spring = Instance.new('SpringConstraint', attachment)
-	spring.Attachment1 = attachment
+	spring.Attachment0 = attachment
 	spring.FreeLength = 1e-1
-	spring.Stiffness = 7e3
-	spring.Damping = 3e3
+	spring.Stiffness = 1e4
+	spring.Damping = 5e3
 	self.Spring = spring
 	self.Target = targett
 	self.Janitor:Add(targett)
@@ -25,7 +25,7 @@ function class:init()
 end
 
 function class:perform(obj: Model, cframe: CFrame): nil
-	self.Spring.Attachment0 = obj.PrimaryPart:FindFirstChild('RootAttachment')
+	self.Spring.Attachment1 = obj.PrimaryPart:FindFirstChild('RootAttachment')
 	self.Target.CFrame = cframe
 	self.Target.Parent = obj
 	repeat task.wait() until self.Spring.CurrentLength < 1

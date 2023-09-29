@@ -5,11 +5,11 @@ local Janitor = require(ReplStor.Shared.Janitor)
 local class = ObjectOrientate()
 
 
-function class:init(spawn_location: CFrame, userId: number)
-	self.UserId = userId
+function class:init(spawn_location: CFrame, description: HumanoidDescription)
 	self.LoaderJanitor = Janitor.new()
-	self.Description = game.Players:GetHumanoidDescriptionFromUserId(userId)
+	self.Description = description:Clone()
 	self.SpawnLocation = spawn_location
+	self.LoadFlag = true
 
 	-- Spawning is initialised on character load, but selected by random upon first init.
 	self.SpawnInit = RandomInitialisier{
@@ -18,8 +18,8 @@ function class:init(spawn_location: CFrame, userId: number)
 	}
 
 	self.MoveInit = RandomInitialisier{
-		{require(script.Parent.Parent.MoveAnims.SpringMove), {}},
-		{require(script.Parent.Parent.MoveAnims.TweenMove), {}},
+		--{require(script.Parent.Parent.MoveAnims.SpringMove), {}},
+		{require(script.Parent.Parent.MoveAnims.TweenMove), {5e-1 + math.random()}},
 	}
 
 	self.LocatorInit = RandomInitialisier{
@@ -27,7 +27,7 @@ function class:init(spawn_location: CFrame, userId: number)
 	}
 
 	self.PathfindInit = RandomInitialisier{
-		{require(script.Parent.Parent.PathfindLogic.BasePathfind), {}},
+		{require(script.Parent.Parent.PathfindLogic.BasePathfind), {4 + 9 * math.random()}},
 	}
 end
 
@@ -41,7 +41,9 @@ function class:load(): nil
 		Enum.AssetTypeVerification.ClientOnly
 	)
 
-	self.ReloadFlag = false
+	-- This is to make sure that the character doesn't keep respawning.
+	self.LoadFlag = false
+
 	self.MoveObj = self.MoveInit()
 	self.SpawnObj = self.SpawnInit()
 	self.LocatorObj = self.LocatorInit()
@@ -58,7 +60,7 @@ end
 
 -- Return false until 'to_cf' is close enough to the character's current position.
 function class:navigate_to(to_cf: CFrame): boolean
-	local from_cf: CFrame = self.CharacterModel:GetPrimaryPartCFrame()
+	local from_cf: CFrame = self.CharacterModel.PrimaryPart.CFrame
 	local mid_cf: CFrame = self.PathfindObj:perform(from_cf, to_cf)
 
 	local dist = (
@@ -89,7 +91,7 @@ end
 
 
 function class:die(): nil
-	self.ReloadFlag = true
+	self.LoadFlag = true
 end
 
 
@@ -113,11 +115,22 @@ end
 
 
 function class:loop(...): nil
+	while not self.LoadFlag do
+		local done = self:navigate()
+		-- If the character is already at its destination, leave some delay so as to not strain the game.
+		if done then task.wait(self.MoveObj.DoneWait) end
+	end
+
+	-- The call to 'clean' is intentionally redundant when we use 'loop_respawn'.
+	self:clean()
+end
+
+
+function class:loop_respawn(...): nil
 	while true do
-		self:navigate()
-		if self.ReloadFlag then
-			self:load()
-		end
+		-- Loop until the character dies then respawn it automatically.
+		self:loop(...)
+		self:load()
 	end
 end
 

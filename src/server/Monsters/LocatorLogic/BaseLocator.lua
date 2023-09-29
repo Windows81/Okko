@@ -5,13 +5,13 @@ local class = ObjectOrientate(JanitorClass)
 
 -- Locates the closest player to 'obj'.
 function class:perform(obj: Model): CFrame
-	local obj_cf = obj.PrimaryPart.CFrame
+	local obj_pos = obj.PrimaryPart.Position
 	local closest_dist, closest_cf = math.huge, nil
 
 	for _, plr in game.Players:GetPlayers() do
 		if not plr.Character then continue end
 		local plr_cf = plr.Character.PrimaryPart.CFrame
-		local dist = (plr_cf.Position - obj_cf.Position).Magnitude
+		local dist = (plr_cf.Position - obj_pos).Magnitude
 		if closest_dist > dist then
 			closest_cf = plr_cf
 			closest_dist = dist
