@@ -44,6 +44,9 @@ function class:load(): nil
 	-- This is to make sure that the character doesn't keep respawning.
 	self.LoadFlag = false
 
+	-- THis is to make sure the character is allowed to perform its 'die' routine.
+	self.DieFlag = false
+
 	self.MoveObj = self.MoveInit()
 	self.SpawnObj = self.SpawnInit()
 	self.LocatorObj = self.LocatorInit()
@@ -101,6 +104,14 @@ function class:__skin(): nil
 end
 
 
+function class:__check_die(): boolean
+	if self.DieFlag then return false end
+	self.DieFlag = true
+	self:die()
+	return true
+end
+
+
 function class:__spawn(): nil
 	self.CharacterModel.Parent = game.Workspace
 	self.LoaderJanitor:Add(self.CharacterModel)
@@ -109,9 +120,8 @@ function class:__spawn(): nil
 	-- Check if killed whilst spawning.
 	if self.CharacterModel.Humanoid.Health <= 0 then self:die() return end
 
-	self.CharacterModel.Humanoid.Died:Connect(function() self:die() end)
-	self.CharacterModel.Destroying:Connect(function() self:die() end)
-
+	self.CharacterModel.Humanoid.Died:Connect(function() self:__check_die() end)
+	self.CharacterModel.Destroying:Connect(function() self:__check_die() end)
 end
 
 

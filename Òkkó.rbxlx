@@ -90,18 +90,18 @@
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<CoordinateFrame name="CFrame">
-					<X>-48.6608582</X>
-					<Y>32.4304657</Y>
-					<Z>104.322235</Z>
-					<R00>0.95593065</R00>
-					<R01>0.202055335</R01>
-					<R02>-0.213002905</R02>
-					<R10>-1.49011612e-08</R10>
-					<R11>0.725505114</R11>
-					<R12>0.688216746</R12>
-					<R20>0.293592572</R20>
-					<R21>-0.657887459</R21>
-					<R22>0.693532586</R22>
+					<X>-289.323792</X>
+					<Y>104.842346</Y>
+					<Z>-31.4829845</Z>
+					<R00>-0.339621574</R00>
+					<R01>0.249359429</R01>
+					<R02>-0.906905234</R02>
+					<R10>-7.4505806e-09</R10>
+					<R11>0.964216232</R11>
+					<R12>0.265117407</R12>
+					<R20>0.940562248</R20>
+					<R21>0.090039596</R21>
+					<R22>-0.327468574</R22>
 				</CoordinateFrame>
 				<Ref name="CameraSubject">null</Ref>
 				<token name="CameraType">0</token>
@@ -110,9 +110,9 @@
 				<float name="FieldOfView">70</float>
 				<token name="FieldOfViewMode">0</token>
 				<CoordinateFrame name="Focus">
-					<X>-48.2348557</X>
-					<Y>31.0540428</Y>
-					<Z>102.935181</Z>
+					<X>-287.509979</X>
+					<Y>104.312111</Y>
+					<Z>-30.8280468</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -1512,6 +1512,18 @@ return RemoteTweenService]]></ProtectedString>
 				<BinaryString name="Tags"></BinaryString>
 				<UniqueId name="UniqueId">68170826ab78536602e680ba000215dd</UniqueId>
 			</Properties>
+			<Item class="Folder" referent="RBX893E4C369B1F451BAD71A47D4ECAF420">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">Server</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">6422bfc6b5e875e50533c90600003e42</UniqueId>
+				</Properties>
+			</Item>
 		</Item>
 	</Item>
 	<Item class="StarterPack" referent="RBXE765E416DC984BACA0755269CC8C4BEF">
@@ -3319,7 +3331,7 @@ return {
 				<int64 name="ClimbAnimation">2510230574</int64>
 				<bool name="DefinesCapabilities">false</bool>
 				<float name="DepthScale">1</float>
-				<string name="EmotesDataInternal">Heisman Pose^3696763549^\Air Guitar^3696761354^\Tilt^3360692915^\Shrug^3576968026^\Hello^3576686446^\Superhero Reveal^3696759798^\Salute^3360689775^\Stadium^3360686498^\</string>
+				<string name="EmotesDataInternal">Air Guitar^3696761354^\Heisman Pose^3696763549^\Tilt^3360692915^\Shrug^3576968026^\Hello^3576686446^\Salute^3360689775^\Superhero Reveal^3696759798^\Stadium^3360686498^\</string>
 				<string name="EquippedEmotesDataInternal">1^Heisman Pose\2^Tilt\3^Air Guitar\4^Shrug\5^Hello\6^Superhero Reveal\7^Salute\8^Stadium\</string>
 				<int64 name="Face">0</int64>
 				<string name="FaceAccessory">261826995,121390054</string>
