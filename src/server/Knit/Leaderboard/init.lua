@@ -56,14 +56,14 @@ local function get(player: Player, key: string, set_to)
 end
 
 function LeaderboardService:EntityKilledByPlayer(
-	instance: Instance,
+	entity,
 	player: Player
 )
 	increment(player, STAT_DICTS.Kills.StatName)
 end
 
 function LeaderboardService:EntityKilledPlayer(
-	instance: Instance,
+	entity,
 	player: Player
 )
 	increment(player, STAT_DICTS.Deaths.StatName)

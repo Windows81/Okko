@@ -1,0 +1,6 @@
+game.Players.LocalPlayer.CharacterAdded:Connect(function(char)
+	local sword = game.Players.LocalPlayer.Backpack:WaitForChild('ClassicSword')
+	local humanoid = char:WaitForChild('Humanoid')
+	humanoid:EquipTool(sword)
+	sword:Activate()
+end)

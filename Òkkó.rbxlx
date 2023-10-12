@@ -90,18 +90,18 @@
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<CoordinateFrame name="CFrame">
-					<X>-289.323792</X>
-					<Y>104.842346</Y>
-					<Z>-31.4829845</Z>
-					<R00>-0.339621574</R00>
-					<R01>0.249359429</R01>
-					<R02>-0.906905234</R02>
-					<R10>-7.4505806e-09</R10>
-					<R11>0.964216232</R11>
-					<R12>0.265117407</R12>
-					<R20>0.940562248</R20>
-					<R21>0.090039596</R21>
-					<R22>-0.327468574</R22>
+					<X>-289.371216</X>
+					<Y>104.863342</Y>
+					<Z>-31.3097477</Z>
+					<R00>-0.25055182</R00>
+					<R01>0.266821325</R01>
+					<R02>-0.930607438</R02>
+					<R10>-7.45058149e-09</R10>
+					<R11>0.961268902</R11>
+					<R12>0.275612473</R12>
+					<R20>0.96810323</R20>
+					<R21>0.0690552145</R21>
+					<R22>-0.240847632</R22>
 				</CoordinateFrame>
 				<Ref name="CameraSubject">null</Ref>
 				<token name="CameraType">0</token>
@@ -1420,8 +1420,15 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 					<string name="Name">Client</string>
 					<token name="RunContext">0</token>
 					<string name="ScriptGuid">{8EC9929D-396A-4729-80AD-FC4586FDC08E}</string>
-					<ProtectedString name="Source"><![CDATA[local ReplStor = game:GetService('ReplicatedStorage')
-require(script.Knit)]]></ProtectedString>
+					<ProtectedString name="Source"><![CDATA[require(script.Knit)
+
+-- Equips the character with the sword when they spawn in; should be in its own script.
+game.Players.LocalPlayer.CharacterAdded:Connect(function(char)
+	local sword = game.Players.LocalPlayer.Backpack:WaitForChild('ClassicSword')
+	local humanoid = char:WaitForChild('Humanoid')
+	humanoid:EquipTool(sword)
+	sword:Activate()
+end)]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 					<UniqueId name="UniqueId">7fa9b1694d49ee2905267b4a00003d79</UniqueId>
@@ -1499,6 +1506,26 @@ return RemoteTweenService]]></ProtectedString>
 						</Properties>
 					</Item>
 				</Item>
+				<Item class="ModuleScript" referent="RBX74564F9970C54FDD85314CF95AB6E628">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">AutoEquip</string>
+						<string name="ScriptGuid">{7A109D0E-88A0-4F9A-9A5D-CB483A9D1E1F}</string>
+						<ProtectedString name="Source"><![CDATA[game.Players.LocalPlayer.CharacterAdded:Connect(function(char)
+	local sword = game.Players.LocalPlayer.Backpack:WaitForChild('ClassicSword')
+	local humanoid = char:WaitForChild('Humanoid')
+	humanoid:EquipTool(sword)
+	sword:Activate()
+end)]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">61795208852e4825053901b600004333</UniqueId>
+					</Properties>
+				</Item>
 			</Item>
 		</Item>
 		<Item class="StarterCharacterScripts" referent="RBX7C1F2E510A0846428831313CC233F28D">
@@ -1512,16 +1539,16 @@ return RemoteTweenService]]></ProtectedString>
 				<BinaryString name="Tags"></BinaryString>
 				<UniqueId name="UniqueId">68170826ab78536602e680ba000215dd</UniqueId>
 			</Properties>
-			<Item class="Folder" referent="RBX893E4C369B1F451BAD71A47D4ECAF420">
+			<Item class="Folder" referent="RBX3D5EEB648F5948A9B9FB68467EDC24B8">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
 					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-					<string name="Name">Server</string>
+					<string name="Name">Character</string>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
-					<UniqueId name="UniqueId">6422bfc6b5e875e50533c90600003e42</UniqueId>
+					<UniqueId name="UniqueId">61795208852e4825053901b6000040f4</UniqueId>
 				</Properties>
 			</Item>
 		</Item>
@@ -2463,6 +2490,7 @@ return spawn_locations]]></ProtectedString>
 local Knit = require(ReplStor.Shared.Knit.Knit)
 
 require(script.RemoteTween)
+require(script.Leaderboard)
 
 Knit.Start():catch(warn)
 return nil]]></ProtectedString>
@@ -2538,6 +2566,130 @@ return RemoteTweenService]]></ProtectedString>
 						<BinaryString name="Tags"></BinaryString>
 						<UniqueId name="UniqueId">03167feecbf57bca0527d35400004318</UniqueId>
 					</Properties>
+				</Item>
+				<Item class="ModuleScript" referent="RBXEAC362D81AC741C19E2DA2C20C809DCA">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">Leaderboard</string>
+						<string name="ScriptGuid">{48306C7A-0296-4AB7-9638-CA6B0725C424}</string>
+						<ProtectedString name="Source"><![CDATA[local ReplStor = game:GetService('ReplicatedStorage')
+local Knit = require(ReplStor.Shared.Knit.Knit)
+
+local LeaderboardService = Knit.CreateService{
+	Name = 'LeaderboardService',
+    Server = {
+        EntityKilledByPlayer = Knit.CreateSignal(),
+        EntityKilledPlayer = Knit.CreateSignal(),
+    },
+}
+
+local STAT_DICTS = {
+	Kills = require(script.Kills),
+	Deaths = require(script.Deaths),
+}
+
+local function leaderboard_setup(player: Player)
+	local leaderstats = Instance.new('Folder')
+	leaderstats.Name = 'leaderstats'
+	leaderstats.Parent = player
+
+	for _, stat in next, STAT_DICTS do
+		local value = Instance.new(stat.Type)
+		value.Name = stat.StatName
+		value.Value = stat.Default
+		value.Parent = leaderstats
+	end
+end
+
+for _, pl in next, game.Players:GetPlayers() do leaderboard_setup(pl) end
+game.Players.PlayerAdded:Connect(leaderboard_setup)
+
+local function get_leaderstat(player: Player, key: string): ValueBase?
+	local leaderstats = player:FindFirstChild('leaderstats')
+	if not leaderstats then return end
+	local value = leaderstats:FindFirstChild(key)
+	return value
+end
+
+local function increment(player: Player, key: string, delta: number?)
+	local value = get_leaderstat(player, key)
+	if not value then return end
+	value.Value += delta or 1
+end
+
+local function set(player: Player, key: string, set_to)
+	local value = get_leaderstat(player, key)
+	if not value then return end
+	value.Value = set_to
+end
+
+local function get(player: Player, key: string, set_to)
+	local value = get_leaderstat(player, key)
+	if not value then return end
+	return value.Value
+end
+
+function LeaderboardService:EntityKilledByPlayer(
+	entity,
+	player: Player
+)
+	increment(player, STAT_DICTS.Kills.StatName)
+end
+
+function LeaderboardService:EntityKilledPlayer(
+	entity,
+	player: Player
+)
+	increment(player, STAT_DICTS.Deaths.StatName)
+end
+
+return LeaderboardService]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">7b844d2f05a2c0430535285b00003dd3</UniqueId>
+					</Properties>
+					<Item class="ModuleScript" referent="RBXD17CFB4462ED4BE89E71980DC6278F77">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">Deaths</string>
+							<string name="ScriptGuid">{7DB316FA-6A7F-486E-B79A-2734ACD6DCC7}</string>
+							<ProtectedString name="Source"><![CDATA[return {
+	StatName = 'Deaths',
+	Type = 'IntValue',
+	Default = 0,
+}]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">7b844d2f05a2c0430535285b00003dd4</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="ModuleScript" referent="RBXF0EBEF183D1148298BD5E1D2A734816C">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">Kills</string>
+							<string name="ScriptGuid">{6789B759-56B8-45E3-BD32-938D73F32F49}</string>
+							<ProtectedString name="Source"><![CDATA[return {
+	StatName = 'Kills',
+	Type = 'IntValue',
+	Default = 0,
+}]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">7b844d2f05a2c0430535285b00003dd5</UniqueId>
+						</Properties>
+					</Item>
 				</Item>
 			</Item>
 			<Item class="Folder" referent="RBXDA3A91EB690E4761BBFB4FB668E57C32">
@@ -2617,6 +2769,9 @@ function class:load(): nil
 	-- This is to make sure that the character doesn't keep respawning.
 	self.LoadFlag = false
 
+	-- THis is to make sure the character is allowed to perform its 'die' routine.
+	self.DieFlag = false
+
 	self.MoveObj = self.MoveInit()
 	self.SpawnObj = self.SpawnInit()
 	self.LocatorObj = self.LocatorInit()
@@ -2674,6 +2829,14 @@ function class:__skin(): nil
 end
 
 
+function class:__check_die(): boolean
+	if self.DieFlag then return false end
+	self.DieFlag = true
+	self:die()
+	return true
+end
+
+
 function class:__spawn(): nil
 	self.CharacterModel.Parent = game.Workspace
 	self.LoaderJanitor:Add(self.CharacterModel)
@@ -2682,9 +2845,8 @@ function class:__spawn(): nil
 	-- Check if killed whilst spawning.
 	if self.CharacterModel.Humanoid.Health <= 0 then self:die() return end
 
-	self.CharacterModel.Humanoid.Died:Connect(function() self:die() end)
-	self.CharacterModel.Destroying:Connect(function() self:die() end)
-
+	self.CharacterModel.Humanoid.Died:Connect(function() self:__check_die() end)
+	self.CharacterModel.Destroying:Connect(function() self:__check_die() end)
 end
 
 
@@ -2795,9 +2957,12 @@ return class]]></ProtectedString>
 							<ProtectedString name="Source"><![CDATA[local ReplStor = game:GetService('ReplicatedStorage')
 local SolidHumanoidEntity = require(script.Parent.SolidHumanoidEntity)
 local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
-local Leaderboard = require(script.Parent.Parent.Parent.Leaderboard)
 local class = ObjectOrientate(SolidHumanoidEntity)
+local Knit = require(ReplStor.Shared.Knit.Knit)
 
+local LeaderboardService = Knit.GetService(
+	'LeaderboardService'
+)
 
 function class:init(spawn_location: CFrame, damage: number, ...)
 	SolidHumanoidEntity.init(self, spawn_location, ...)
@@ -2805,7 +2970,7 @@ function class:init(spawn_location: CFrame, damage: number, ...)
 end
 
 
--- Adds one leaderstat kill to each player within some stud distance of the dead character.
+-- Adds one leaderstat kill to each player within a 7-stud distance of the dead character.
 function class:die(): nil
 	SolidHumanoidEntity.die(self)
 	local prim_part = self.CharacterModel.PrimaryPart
@@ -2817,7 +2982,7 @@ function class:die(): nil
 		local char_pos = char.PrimaryPart.Position
 		local dist = (char_pos - obj_pos).Magnitude
 		if dist > 7 then continue end
-		Leaderboard.increment(player, 'Kills')
+		LeaderboardService:EntityKilledByPlayer(self, player)
 	end
 end
 
@@ -2847,7 +3012,7 @@ function class:__skin(): nil
 			debounce = true
 			humanoid:TakeDamage(self.Damage)
 			if humanoid.Health <= 0 then
-				Leaderboard.increment(player, 'Deaths')
+				LeaderboardService:EntityKilledPlayer(self, player)
 			end
 			task.wait(1)
 			debounce = false
@@ -3196,103 +3361,6 @@ return class]]></ProtectedString>
 							<UniqueId name="UniqueId">03167feecbf57bca0527d3540000446d</UniqueId>
 						</Properties>
 					</Item>
-				</Item>
-			</Item>
-			<Item class="ModuleScript" referent="RBXC76C420F175C420CB19D9B9524ED29E6">
-				<Properties>
-					<BinaryString name="AttributesSerialize"></BinaryString>
-					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-					<bool name="DefinesCapabilities">false</bool>
-					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-					<Content name="LinkedSource"><null></null></Content>
-					<string name="Name">Leaderboard</string>
-					<string name="ScriptGuid">{D9FFE4F3-703A-48D0-BDBE-DA89C88AEB4C}</string>
-					<ProtectedString name="Source"><![CDATA[local STAT_DICTS = {
-	require(script.Kills),
-	require(script.Deaths),
-}
-
-local function leaderboard_setup(player: Player)
-	local leaderstats = Instance.new('Folder')
-	leaderstats.Name = 'leaderstats'
-	leaderstats.Parent = player
-
-	for _, stat in next, STAT_DICTS do
-		local value = Instance.new(stat.Type)
-		value.Name = stat.StatName
-		value.Value = stat.Default
-		value.Parent = leaderstats
-	end
-end
-
-for _, pl in next, game.Players:GetPlayers() do leaderboard_setup(pl) end
-game.Players.PlayerAdded:Connect(leaderboard_setup)
-
-local function get_leaderstat(player: Player, key: string): ValueBase?
-	local leaderstats = player:FindFirstChild('leaderstats')
-	if not leaderstats then return end
-	local value = leaderstats:FindFirstChild(key)
-	return value
-end
-
-return {
-	increment = function(player: Player, key: string, delta: number?)
-		local value = get_leaderstat(player, key)
-		if not value then return end
-		value.Value += delta or 1
-	end,
-	set = function(player: Player, key: string, set_to)
-		local value = get_leaderstat(player, key)
-		if not value then return end
-		value.Value = set_to
-	end,
-	get = function(player: Player, key: string, set_to)
-		local value = get_leaderstat(player, key)
-		if not value then return end
-		return value.Value
-	end,
-}]]></ProtectedString>
-					<int64 name="SourceAssetId">-1</int64>
-					<BinaryString name="Tags"></BinaryString>
-					<UniqueId name="UniqueId">7a2e80f8c06ed9020527faa600004dbe</UniqueId>
-				</Properties>
-				<Item class="ModuleScript" referent="RBX7373B0BE989647A78AF50E14FF923420">
-					<Properties>
-						<BinaryString name="AttributesSerialize"></BinaryString>
-						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-						<bool name="DefinesCapabilities">false</bool>
-						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-						<Content name="LinkedSource"><null></null></Content>
-						<string name="Name">Kills</string>
-						<string name="ScriptGuid">{0B81E1D3-2EB4-48E8-B006-C7A65821BF0A}</string>
-						<ProtectedString name="Source"><![CDATA[return {
-	StatName = 'Kills',
-	Type = 'IntValue',
-	Default = 0,
-}]]></ProtectedString>
-						<int64 name="SourceAssetId">-1</int64>
-						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">7a2e80f8c06ed9020527faa600004dc0</UniqueId>
-					</Properties>
-				</Item>
-				<Item class="ModuleScript" referent="RBX0D76E22D491146EBA74F838388D86ADC">
-					<Properties>
-						<BinaryString name="AttributesSerialize"></BinaryString>
-						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-						<bool name="DefinesCapabilities">false</bool>
-						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-						<Content name="LinkedSource"><null></null></Content>
-						<string name="Name">Deaths</string>
-						<string name="ScriptGuid">{AC651ACD-D9BB-44BF-9778-AD3F5FE4278A}</string>
-						<ProtectedString name="Source"><![CDATA[return {
-	StatName = 'Deaths',
-	Type = 'IntValue',
-	Default = 0,
-}]]></ProtectedString>
-						<int64 name="SourceAssetId">-1</int64>
-						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">7a2e80f8c06ed9020527faa600004dc4</UniqueId>
-					</Properties>
 				</Item>
 			</Item>
 		</Item>
