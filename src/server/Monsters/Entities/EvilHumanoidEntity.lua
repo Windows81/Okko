@@ -16,6 +16,7 @@ end
 
 -- Adds one leaderstat kill to each player within a 7-stud distance of the dead character.
 function EvilHumanoid:__die(): nil
+	local ENTITY_WO_RADIUS = 13
 	SolidHumanoidEntity.__die(self)
 	local prim_part = self.CharacterModel.PrimaryPart
 	if not prim_part then return end
@@ -25,7 +26,7 @@ function EvilHumanoid:__die(): nil
 		if not char then continue end
 		local char_pos = char.PrimaryPart.Position
 		local dist = (char_pos - obj_pos).Magnitude
-		if dist > 7 then continue end
+		if dist > ENTITY_WO_RADIUS then continue end
 		LeaderboardService:EntityKilledByPlayer(self, player)
 	end
 end
