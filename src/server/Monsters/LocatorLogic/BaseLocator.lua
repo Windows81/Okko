@@ -1,10 +1,10 @@
 local ReplStor = game:GetService('ReplicatedStorage')
 local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
 local JanitorClass = require(ReplStor.Shared.Util.JanitorClass)
-local class = ObjectOrientate(JanitorClass)
+local BaseLocator = ObjectOrientate(JanitorClass)
 
 -- Locates the closest player to 'obj'.
-function class:perform(obj: Model): CFrame?
+function BaseLocator:perform(obj: Model): CFrame?
 	local prim_part = obj.PrimaryPart
 	if not prim_part then return end
 
@@ -25,4 +25,4 @@ function class:perform(obj: Model): CFrame?
 	return closest_cf
 end
 
-return class
+return BaseLocator

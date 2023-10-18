@@ -2,10 +2,10 @@ local ReplStor = game:GetService('ReplicatedStorage')
 local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
 local RandomInitialisier = require(ReplStor.Shared.Util.RandomInitialisier)
 local Janitor = require(ReplStor.Shared.Janitor)
-local class = ObjectOrientate()
+local HumanoidEntity = ObjectOrientate()
 
 
-function class:init(spawn_location: CFrame, description: HumanoidDescription)
+function HumanoidEntity:init(spawn_location: CFrame, description: HumanoidDescription)
 	self.LoaderJanitor = Janitor.new()
 	self.Description = description:Clone()
 	self.SpawnLocation = spawn_location
@@ -33,7 +33,7 @@ end
 
 
 -- Clears previous character and loads a new one in with the parameters specified in 'init'.
-function class:load(): nil
+function HumanoidEntity:load(): nil
 	self:clean()
 	self.CharacterModel = game.Players:CreateHumanoidModelFromDescription(
 		self.Description,
@@ -62,7 +62,7 @@ end
 
 
 -- Return false until 'to_cf' is close enough to the character's current position.
-function class:navigate_to(to_cf: CFrame): boolean
+function HumanoidEntity:navigate_to(to_cf: CFrame): boolean
 	local from_cf: CFrame = self.CharacterModel.PrimaryPart.CFrame
 	local mid_cf: CFrame = self.PathfindObj:perform(from_cf, to_cf)
 
@@ -81,7 +81,7 @@ end
 
 
 -- Uses the instance's locator logic to move it to the next appropriate spot.
-function class:navigate(): boolean
+function HumanoidEntity:navigate(): boolean
 	local to_cf = self.LocatorObj:perform(self.CharacterModel)
 	if not to_cf then return true end
 	return self:navigate_to(to_cf)
@@ -89,22 +89,22 @@ end
 
 
 -- Clears all existing objects that are connected to our entity instance.
-function class:clean(): nil
+function HumanoidEntity:clean(): nil
 	self.LoaderJanitor:Cleanup()
 end
 
 
-function class:die(): nil
+function HumanoidEntity:die(): nil
 	self.LoadFlag = true
 end
 
 
-function class:__skin(): nil
+function HumanoidEntity:__skin(): nil
 	self.CharacterModel.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
 end
 
 
-function class:__check_die(): boolean
+function HumanoidEntity:__check_die(): boolean
 	if self.DieFlag then return false end
 	self.DieFlag = true
 	self:die()
@@ -112,7 +112,7 @@ function class:__check_die(): boolean
 end
 
 
-function class:__spawn(): nil
+function HumanoidEntity:__spawn(): nil
 	self.CharacterModel.Parent = game.Workspace
 	self.LoaderJanitor:Add(self.CharacterModel)
 	self.SpawnObj:perform(self.CharacterModel, self.SpawnLocation)
@@ -125,7 +125,7 @@ function class:__spawn(): nil
 end
 
 
-function class:loop(...): nil
+function HumanoidEntity:loop(...): nil
 	while not self.LoadFlag do
 		local done = self:navigate()
 		-- If the character is already at its destination, leave some delay so as to not strain the game.
@@ -137,7 +137,7 @@ function class:loop(...): nil
 end
 
 
-function class:loop_respawn(...): nil
+function HumanoidEntity:loop_respawn(...): nil
 	while true do
 		-- Loop until the character dies then respawn it automatically.
 		self:loop(...)
@@ -146,4 +146,4 @@ function class:loop_respawn(...): nil
 end
 
 
-return class
+return HumanoidEntity

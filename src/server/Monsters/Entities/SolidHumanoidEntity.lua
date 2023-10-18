@@ -1,10 +1,10 @@
 local ReplStor = game:GetService('ReplicatedStorage')
 local HumanoidEntity = require(script.Parent.HumanoidEntity)
 local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
-local class = ObjectOrientate(HumanoidEntity)
+local SolidHumanEntity = ObjectOrientate(HumanoidEntity)
 
 
-function class:init(
+function SolidHumanEntity:init(
 	spawn_location: CFrame,
 	description: HumanoidDescription,
 	colour: Color3,
@@ -21,7 +21,7 @@ function class:init(
 end
 
 
-function class:__skin(): nil
+function SolidHumanEntity:__skin(): nil
 	HumanoidEntity.__skin(self)
 	for _, part in self.CharacterModel:GetDescendants() do
 		if part:IsA'MeshPart' then
@@ -51,4 +51,4 @@ function class:__skin(): nil
 end
 
 
-return class
+return SolidHumanEntity

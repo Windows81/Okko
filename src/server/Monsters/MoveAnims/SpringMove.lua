@@ -1,9 +1,9 @@
 local ReplStor = game:GetService('ReplicatedStorage')
 local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
 local BaseMove = require(script.Parent.BaseMove)
-local class = ObjectOrientate(BaseMove)
+local SpringMove = ObjectOrientate(BaseMove)
 
-function class:init(...)
+function SpringMove:init(...)
 	BaseMove.init(self, ...)
 	local targett = Instance.new('Part')
 	targett.Shape = Enum.PartType.Ball
@@ -24,7 +24,7 @@ function class:init(...)
 	self.Janitor:Add(spring)
 end
 
-function class:perform(obj: Model, cframe: CFrame): nil
+function SpringMove:perform(obj: Model, cframe: CFrame): nil
 	self.Spring.Attachment1 = obj.PrimaryPart:FindFirstChild('RootAttachment')
 	self.Target.CFrame = cframe
 	self.Target.Parent = obj
@@ -32,4 +32,4 @@ function class:perform(obj: Model, cframe: CFrame): nil
 	task.wait(5e-1)
 end
 
-return class
+return SpringMove

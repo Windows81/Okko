@@ -2,9 +2,9 @@ local ReplStor = game:GetService('ReplicatedStorage')
 local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
 local RemoteTween = require(script.Parent.Parent.Parent.Knit.RemoteTween)
 local BaseSpawn = require(script.Parent.BaseSpawn)
-local class = ObjectOrientate(BaseSpawn)
+local FallSpawn = ObjectOrientate(BaseSpawn)
 
-function class:perform(char: Model, cframe: CFrame): nil
+function FallSpawn:perform(char: Model, cframe: CFrame): nil
 	local root_part = char:FindFirstChild('HumanoidRootPart')
 	root_part.Anchored = true
 
@@ -29,4 +29,4 @@ function class:perform(char: Model, cframe: CFrame): nil
 	root_part.Anchored = false
 end
 
-return class
+return FallSpawn

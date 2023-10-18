@@ -1,21 +1,21 @@
 local ReplStor = game:GetService('ReplicatedStorage')
 local SolidHumanoidEntity = require(script.Parent.SolidHumanoidEntity)
 local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
-local class = ObjectOrientate(SolidHumanoidEntity)
+local EvilHumanoid = ObjectOrientate(SolidHumanoidEntity)
 local Knit = require(ReplStor.Shared.Knit.Knit)
 
 local LeaderboardService = Knit.GetService(
 	'LeaderboardService'
 )
 
-function class:init(spawn_location: CFrame, damage: number, ...)
+function EvilHumanoid:init(spawn_location: CFrame, damage: number, ...)
 	SolidHumanoidEntity.init(self, spawn_location, ...)
 	self.Damage = damage
 end
 
 
 -- Adds one leaderstat kill to each player within a 7-stud distance of the dead character.
-function class:die(): nil
+function EvilHumanoid:die(): nil
 	SolidHumanoidEntity.die(self)
 	local prim_part = self.CharacterModel.PrimaryPart
 	if not prim_part then return end
@@ -31,7 +31,7 @@ function class:die(): nil
 end
 
 
-function class:__skin(): nil
+function EvilHumanoid:__skin(): nil
 	SolidHumanoidEntity.__skin(self)
 	for _, part in self.CharacterModel:GetDescendants() do
 		local debounce = false
@@ -65,4 +65,4 @@ function class:__skin(): nil
 end
 
 
-return class
+return EvilHumanoid

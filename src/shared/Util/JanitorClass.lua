@@ -1,13 +1,13 @@
 local ObjectOrientate = require(script.Parent.ObjectOrientate)
 local Janitor = require(script.Parent.Parent.Janitor)
-local class = ObjectOrientate()
+local JanitorClass = ObjectOrientate()
 
-function class:init()
+function JanitorClass:init()
 	self.Janitor = Janitor.new()
 end
 
-function class:destroy()
+function JanitorClass:destroy()
 	self.Janitor:Cleanup()
 end
 
-return class
+return JanitorClass
