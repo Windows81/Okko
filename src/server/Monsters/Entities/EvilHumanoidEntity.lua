@@ -15,8 +15,8 @@ end
 
 
 -- Adds one leaderstat kill to each player within a 7-stud distance of the dead character.
-function EvilHumanoid:die(): nil
-	SolidHumanoidEntity.die(self)
+function EvilHumanoid:__die(): nil
+	SolidHumanoidEntity.__die(self)
 	local prim_part = self.CharacterModel.PrimaryPart
 	if not prim_part then return end
 	local obj_pos = prim_part.Position

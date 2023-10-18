@@ -9,6 +9,7 @@ function HumanoidEntity:init(spawn_location: CFrame, description: HumanoidDescri
 	self.LoaderJanitor = Janitor.new()
 	self.Description = description:Clone()
 	self.SpawnLocation = spawn_location
+	self.DebugId = math.random(0, 666)
 	self.LoadFlag = true
 
 	-- Spawning is initialised on character load, but selected by random upon first init.
@@ -94,8 +95,9 @@ function HumanoidEntity:clean(): nil
 end
 
 
-function HumanoidEntity:die(): nil
+function HumanoidEntity:__die(): nil
 	self.LoadFlag = true
+	self.DieFlag = true
 end
 
 
@@ -104,10 +106,10 @@ function HumanoidEntity:__skin(): nil
 end
 
 
-function HumanoidEntity:__check_die(): boolean
+function HumanoidEntity:die(): boolean
+	-- print(self.DebugId, self.DieFlag)
 	if self.DieFlag then return false end
-	self.DieFlag = true
-	self:die()
+	self:__die()
 	return true
 end
 
@@ -120,8 +122,8 @@ function HumanoidEntity:__spawn(): nil
 	-- Check if killed whilst spawning.
 	if self.CharacterModel.Humanoid.Health <= 0 then self:die() return end
 
-	self.CharacterModel.Humanoid.Died:Connect(function() self:__check_die() end)
-	self.CharacterModel.Destroying:Connect(function() self:__check_die() end)
+	self.CharacterModel.Humanoid.Died:Connect(function() self:die() end)
+	self.CharacterModel.Destroying:Connect(function() self:die() end)
 end
 
 

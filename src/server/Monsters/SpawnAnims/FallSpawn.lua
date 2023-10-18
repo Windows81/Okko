@@ -1,6 +1,6 @@
 local ReplStor = game:GetService('ReplicatedStorage')
 local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
-local RemoteTween = require(script.Parent.Parent.Parent.Knit.RemoteTween)
+local EasyClientTween = require(ReplStor.Shared.EasyClientTween)
 local BaseSpawn = require(script.Parent.BaseSpawn)
 local FallSpawn = ObjectOrientate(BaseSpawn)
 
@@ -16,16 +16,20 @@ function FallSpawn:perform(char: Model, cframe: CFrame): nil
 		1e2 * Vector3.new(x, 1, z)
 	)
 
-	RemoteTween:FireAllClients(
+	local duration = math.random(7, 13)
+	local tween_handler = EasyClientTween.new(false, nil, nil, nil)
+	tween_handler:TweenAllClients(
 		root_part,
-		TweenInfo.new(7),
+		{
+			duration,
+		},
 		{
 			CFrame = cframe,
-		},
-		true
+		}
 	)
 
-	task.wait()
+	self.Janitor:Add(tween_handler)
+	task.wait(duration)
 	root_part.Anchored = false
 end
 

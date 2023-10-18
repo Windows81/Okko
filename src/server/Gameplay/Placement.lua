@@ -1,4 +1,4 @@
-local DISTANCE = 32
+local DISTANCE = 64
 local EXTENTS = 128
 
 local spawn_locations = {}

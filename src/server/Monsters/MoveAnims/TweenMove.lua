@@ -22,11 +22,11 @@ function TweenMove:perform(obj: Model, cframe: CFrame): nil
 		math.pi * math.random()
 
 	)
-	local tween_info = TweenInfo.new(
+	local tween_info = {
 		self.TweenTime,
 		Enum.EasingStyle.Sine,
-		Enum.EasingDirection.InOut
-	)
+		Enum.EasingDirection.InOut,
+	}
 
 	local tween_handler = EasyClientTween.new(true, nil, nil, nil)
 	tween_handler:TweenAllClients(
@@ -34,10 +34,10 @@ function TweenMove:perform(obj: Model, cframe: CFrame): nil
 		tween_info,
 		{
 			CFrame = cframe * random_rot
-		},
-		true
+		}
 	)
-	self.Janitor:Add(tween_handler, 'Cancel')
+	self.Janitor:Add(tween_handler)
+	task.wait(self.TweenTime)
 	root_part.Anchored = false
 end
 

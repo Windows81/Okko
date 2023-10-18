@@ -1961,9 +1961,9 @@ function Lunge()
 	end
 	]]
 	
-	wait(0.2)
+	task.wait(0.2)
 	Tool.Grip = Grips.Out
-	wait(0.6)
+	task.wait(0.6)
 	Tool.Grip = Grips.Up
 
 	Damage = DamageValues.SlashDamage
@@ -1977,14 +1977,14 @@ function Activated()
 		return
 	end
 	Tool.Enabled = false
-	local Tick = RunService.Stepped:wait()
+	local Tick = RunService.Stepped:Wait()
 	if (Tick - LastAttack < 0.2) then
 		Lunge()
 	else
 		Attack()
 	end
 	LastAttack = Tick
-	--wait(0.5)
+	--task.wait(0.5)
 	Damage = DamageValues.BaseDamage
 	local SlashAnim = (Tool:FindFirstChild("R15Slash") or Create("Animation"){
 		Name = "R15Slash",
@@ -2045,7 +2045,7 @@ Connection = Handle.Touched:Connect(Blow)]]></ProtectedString>
 					<ProtectedString name="Source"><![CDATA[--Made by Luckymaxer
 
 Mouse_Icon = "rbxasset://textures/GunCursor.png"
-Reloading_Icon = "rbxasset://textures/GunWaitCursor.png"
+Reloading_Icon = "rbxasset://textures/Guntask.waitCursor.png"
 
 Tool = script.Parent
 
@@ -2402,7 +2402,7 @@ return nil]]></ProtectedString>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">Placement</string>
 						<string name="ScriptGuid">{B33E9423-F8E7-4BD8-A787-7B3E02E964EA}</string>
-						<ProtectedString name="Source"><![CDATA[local DISTANCE = 32
+						<ProtectedString name="Source"><![CDATA[local DISTANCE = 64
 local EXTENTS = 128
 
 local spawn_locations = {}
@@ -2607,6 +2607,7 @@ function HumanoidEntity:init(spawn_location: CFrame, description: HumanoidDescri
 	self.LoaderJanitor = Janitor.new()
 	self.Description = description:Clone()
 	self.SpawnLocation = spawn_location
+	self.DebugId = math.random(0, 666)
 	self.LoadFlag = true
 
 	-- Spawning is initialised on character load, but selected by random upon first init.
@@ -2692,8 +2693,9 @@ function HumanoidEntity:clean(): nil
 end
 
 
-function HumanoidEntity:die(): nil
+function HumanoidEntity:__die(): nil
 	self.LoadFlag = true
+	self.DieFlag = true
 end
 
 
@@ -2702,10 +2704,10 @@ function HumanoidEntity:__skin(): nil
 end
 
 
-function HumanoidEntity:__check_die(): boolean
+function HumanoidEntity:die(): boolean
+	-- print(self.DebugId, self.DieFlag)
 	if self.DieFlag then return false end
-	self.DieFlag = true
-	self:die()
+	self:__die()
 	return true
 end
 
@@ -2718,8 +2720,8 @@ function HumanoidEntity:__spawn(): nil
 	-- Check if killed whilst spawning.
 	if self.CharacterModel.Humanoid.Health <= 0 then self:die() return end
 
-	self.CharacterModel.Humanoid.Died:Connect(function() self:__check_die() end)
-	self.CharacterModel.Destroying:Connect(function() self:__check_die() end)
+	self.CharacterModel.Humanoid.Died:Connect(function() self:die() end)
+	self.CharacterModel.Destroying:Connect(function() self:die() end)
 end
 
 
@@ -2844,8 +2846,9 @@ end
 
 
 -- Adds one leaderstat kill to each player within a 7-stud distance of the dead character.
-function EvilHumanoid:die(): nil
-	SolidHumanoidEntity.die(self)
+function EvilHumanoid:__die(): nil
+	local ENTITY_WO_RADIUS = 13
+	SolidHumanoidEntity.__die(self)
 	local prim_part = self.CharacterModel.PrimaryPart
 	if not prim_part then return end
 	local obj_pos = prim_part.Position
@@ -2854,7 +2857,7 @@ function EvilHumanoid:die(): nil
 		if not char then continue end
 		local char_pos = char.PrimaryPart.Position
 		local dist = (char_pos - obj_pos).Magnitude
-		if dist > 7 then continue end
+		if dist > ENTITY_WO_RADIUS then continue end
 		LeaderboardService:EntityKilledByPlayer(self, player)
 	end
 end
@@ -3078,11 +3081,11 @@ function TweenMove:perform(obj: Model, cframe: CFrame): nil
 		math.pi * math.random()
 
 	)
-	local tween_info = TweenInfo.new(
+	local tween_info = {
 		self.TweenTime,
 		Enum.EasingStyle.Sine,
-		Enum.EasingDirection.InOut
-	)
+		Enum.EasingDirection.InOut,
+	}
 
 	local tween_handler = EasyClientTween.new(true, nil, nil, nil)
 	tween_handler:TweenAllClients(
@@ -3090,10 +3093,10 @@ function TweenMove:perform(obj: Model, cframe: CFrame): nil
 		tween_info,
 		{
 			CFrame = cframe * random_rot
-		},
-		true
+		}
 	)
-	self.Janitor:Add(tween_handler, 'Cancel')
+	self.Janitor:Add(tween_handler)
+	task.wait(self.TweenTime)
 	root_part.Anchored = false
 end
 
@@ -3201,7 +3204,7 @@ return BaseSpawn]]></ProtectedString>
 							<string name="ScriptGuid">{A926F60F-4BA6-452C-A6D6-DF4A0033BFBA}</string>
 							<ProtectedString name="Source"><![CDATA[local ReplStor = game:GetService('ReplicatedStorage')
 local ObjectOrientate = require(ReplStor.Shared.Util.ObjectOrientate)
-local RemoteTween = require(script.Parent.Parent.Parent.Knit.RemoteTween)
+local EasyClientTween = require(ReplStor.Shared.EasyClientTween)
 local BaseSpawn = require(script.Parent.BaseSpawn)
 local FallSpawn = ObjectOrientate(BaseSpawn)
 
@@ -3217,16 +3220,20 @@ function FallSpawn:perform(char: Model, cframe: CFrame): nil
 		1e2 * Vector3.new(x, 1, z)
 	)
 
-	RemoteTween:FireAllClients(
+	local duration = math.random(7, 13)
+	local tween_handler = EasyClientTween.new(false, nil, nil, nil)
+	tween_handler:TweenAllClients(
 		root_part,
-		TweenInfo.new(7),
+		{
+			duration,
+		},
 		{
 			CFrame = cframe,
-		},
-		true
+		}
 	)
 
-	task.wait()
+	self.Janitor:Add(tween_handler)
+	task.wait(duration)
 	root_part.Anchored = false
 end
 
@@ -3274,7 +3281,7 @@ return FallSpawn]]></ProtectedString>
 				<int64 name="ClimbAnimation">2510230574</int64>
 				<bool name="DefinesCapabilities">false</bool>
 				<float name="DepthScale">1</float>
-				<string name="EmotesDataInternal">Heisman Pose^3696763549^\Air Guitar^3696761354^\Tilt^3360692915^\Shrug^3576968026^\Hello^3576686446^\Superhero Reveal^3696759798^\Salute^3360689775^\Stadium^3360686498^\</string>
+				<string name="EmotesDataInternal">Air Guitar^3696761354^\Heisman Pose^3696763549^\Tilt^3360692915^\Shrug^3576968026^\Hello^3576686446^\Salute^3360689775^\Superhero Reveal^3696759798^\Stadium^3360686498^\</string>
 				<string name="EquippedEmotesDataInternal">1^Heisman Pose\2^Tilt\3^Air Guitar\4^Shrug\5^Hello\6^Superhero Reveal\7^Salute\8^Stadium\</string>
 				<int64 name="Face">0</int64>
 				<string name="FaceAccessory">261826995,121390054</string>
@@ -6313,7 +6320,491 @@ return JanitorClass]]></ProtectedString>
 					</Properties>
 				</Item>
 			</Item>
-			<Item class="Folder" referent="RBX1FFD7C0E9E0247EF96581E0026CE8314">
+			<Item class="ModuleScript" referent="RBXEF6734EB69DA4422B7290C11F98F220F">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">EasyClientTween</string>
+					<string name="ScriptGuid">{D1AB6ABD-5CD6-4ECC-A49F-4F9F972C1075}</string>
+					<ProtectedString name="Source"><![CDATA[--[[
+The things or functions that were compressed into 1 line are usually not for beginners, use caution when editing them,
+
+HOW TO USE:
+	1. Create a server script, (or edit an existing one)
+	2. In the script, require the module
+		local EasyTween = require(rep:WaitForChild("EasyClientTween"))
+	3. Create the tween handler
+		local EasyTween = require(rep:WaitForChild("EasyClientTween"))
+		local tweenObject = EasyTween.new(Cancellable, InStarterPlayer, ClientSync, DebugModeOverride)
+		
+	4. Wherever you wanna tween (such as in a function, go about doing a regular tweenService:Create() but make tweenInfo in a table, ex: {time, easingstyle, easingdirection}
+		local EasyTween = require(rep:WaitForChild("EasyClientTween"))
+		local tweenObject = EasyTween.new(Cancellable, InStarterPlayer, ClientSync, DebugModeOverride) -- Can leave blank to have defaults, ex: local tweenObject = EasyTween.new()
+		
+		To make it tween for EVERYONE: 
+			tweenObject:TweenAllClients(objectToChange, TweenInfoTable, ValuesToTweenTable)
+				-- Keep in mind that tweeninfo table is not TweenInfo.new() and is "{ Tweeninfo values here }"
+			
+			Ex: tweenObject:TweenAllClients(objectToChange, {1.5, Enum.EasingStyle.Linear}, {Position = Vector3.new(0,5,0})
+		
+		
+		To make it tween for ONLY ONE person:
+			local playerObject = game.Players.HiddenKaiser
+			tweenObject:TweenClient(playerObject, objectToChange, TweenInfoTable, ValuesToTweenTable)
+			
+			Ex: tweenObject:TweenClient(playerObject, objectToChange, {1.5, Enum.EasingStyle.Quad}, {Position = Vector3.new(0,5,0})
+		
+	
+	5. Extra API
+	
+		void EasyTween:Cancel(instance Object)
+		
+			Cancels all tweens on a specific object
+	
+		void tweenObject:Destroy()
+			
+			Cleans up the tween and removes old values
+			
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	If you have any more ideas on what to make next DM me on discord @HiddenKaiser#0001 or reply to the devforum topic.
+
+--]]
+
+--Made by HiddenKaiser#0001
+
+local rep = game:GetService("ReplicatedStorage")
+local run = game:GetService("RunService")
+local players = game:GetService("Players")
+local debris = game:GetService("Debris")
+
+local communicate = script:WaitForChild("Communicate")
+local clientSide = script:FindFirstChildWhichIsA("LocalScript") or script:WaitForChild("EasyTweenClient")
+local tickSync = require(script:WaitForChild("TickSyncer"))
+
+local cancelledEvent = Instance.new("BindableEvent")
+
+local Replication = {}
+Replication.__index = Replication -- Allows us to set metatables
+
+
+function Replication.new(Cancellable, InStarterPlayer, ClientSync, DebugModeOverride)
+	local self = {
+		Settings = {
+			Sync = ClientSync or true; --If it removes the issue of clients not being synced because of ping.
+			PlacedAlready = InStarterPlayer or false; -- If the localscript is in StarterPlayerScripts already or still inside the module
+			CanBeCancelled = Cancellable or false; --If the tween gets cancelled when a tween is made for the same object
+			PrintErrors = DebugModeOverride or true; --I would reccomend to keep on true, helps to tell you if you gave the wrong data
+		};
+		
+		CompletedEvent = Instance.new("BindableEvent");
+		Completed = nil;
+		
+		Cancelled = false;
+		CancelEvent = nil; -- This is to store the event for later, dont touch.
+	}
+	
+	setmetatable(self, Replication) --Sets a metatable which lets us index self later
+	
+	self.Completed = self.CompletedEvent.Event;
+
+	return self --Return the table with our functions that allow us to index self later.
+end
+
+function Replication:addClient(plr)
+	if not plr.PlayerGui:FindFirstChild(clientSide.Name) then --Check if player already has it "not" means checking if it *is* nil, and if it *is* nil then clone the script into the backpack
+		local c = clientSide:Clone()
+		c.Parent = plr.PlayerGui --Copy it into the players backpack
+		c.Disabled = false --Make the script actually run lol
+	end
+end
+
+function Replication:addClientToPlayers() -- For new scripters to make it easy to just put the script in
+	for i,plr in pairs(players:GetPlayers()) do --Get all players
+		Replication:addClient(plr) --Read function above
+	end
+end
+
+--Replication is now the metatable we set with EasyClientTween.new
+
+function Replication:TweenAllClients(object, info, properties) -- Tell all players to tween
+	if not properties or not object then return end ---If this stuff is missing then return end
+	if not info then info = TweenInfo.new(1) end -- If tweeninfo is nil then make it a info that takes one second to complete
+
+	local Settings = self.Settings
+	if not Settings.PlacedAlready then
+		Replication:addClientToPlayers() --Add client script to players who don't have it
+	end
+	
+	if Settings.CanBeCancelled then
+		if not self.CancelEvent then
+			self.CancelEvent = Instance.new("RemoteEvent")
+		else
+			self.CancelEvent:FireAllClients(object)
+		end  
+	end --Handle the cancel event
+	
+	tickSync:Sync() --Handle the cancel event
+	communicate:FireAllClients(object, info, properties, Settings, tick(), self.CancelEvent) --Tell the client to tween
+end
+
+function Replication:TweenClient(playerObject, object, info, properties) -- Tell a certain player to tween
+	if not properties or not object then return end ---If this stuff is missing then return end
+	if not info then info = {1} end -- If tweeninfo is nil then make it a info that takes one second to complete
+	
+	local Settings = self.Settings
+	if not Settings.PlacedAlready then
+		Replication:addClient(playerObject) --Add client script to the player if they don't have it
+	end
+	
+	if Settings.CanBeCancelled then
+		if not self.CancelEvent then
+			self.CancelEvent = Instance.new("RemoteEvent")
+		else
+			self.Cancelled = true
+			self.CancelEvent:FireAllClients(object)
+		end
+	end --Handle the cancel event
+	
+	tickSync:Sync()
+	
+	communicate:FireClient(playerObject, object, info, properties, Settings, tick(), self.CancelEvent) --Send the message to the clients
+	
+	if info[1] then
+		coroutine.wrap(function()
+			task.wait(info[1])
+			
+			if not self.Cancelled then
+				self.CompletedEvent:Fire()
+			end
+		end)()
+	end
+end
+
+function Replication:Destroy()
+	local function destroy(obj)
+		if obj then
+			return obj:Destroy()
+		end
+	end
+	
+	destroy(self.CompletedEvent)
+	destroy(self.CancelEvent)
+
+	setmetatable(self, {__mode = "k"}); -- kill the table
+end
+
+function Replication:Cancel(object)
+	assert((object and typeof(object) == "Instance"),  "argument 1, \"object\" must be an instance")
+	
+	if self.CancelEvent then
+		self.CancelEvent:FireAllClients(object)
+	end
+end
+
+return Replication --Return the module
+--HiddenKaiser]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004056</UniqueId>
+				</Properties>
+				<Item class="RemoteEvent" referent="RBXBEF58AAFDACE4964BAD5E2BFBB3D1A51">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Communicate</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004057</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="LocalScript" referent="RBX76F9FF1A0EB74A3F9BC503B76FAF910E">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">true</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">EasyTweenClient</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{04913620-B39B-4C0A-B298-DFFD11684A6B}</string>
+						<ProtectedString name="Source"><![CDATA[--HiddenKaiser#0001
+
+local ts = game:GetService("TweenService")
+local Replicated = game:GetService("ReplicatedStorage")
+
+local module = script:WaitForChild("Module", 3.5) and script.Module.Value or Replicated:WaitForChild("EasyClientTween")
+
+local tickSync = require(module:WaitForChild("TickSyncer"))
+local event = script:WaitForChild("Event", 3) and script.Event.Value or module:WaitForChild("Communicate")
+
+if not event then
+	return warn("No event found")
+end
+
+event.OnClientEvent:Connect(function(object, info, properties, Settings, gameTick, CancelEvent) -- Recieve request from the server
+	local tween
+	local currentTick = tickSync:GetTime() -- Get current time
+	local ping = (currentTick - gameTick) --Get the ping
+	
+	if Settings.Sync then info[1] = (info[1] - ping) end --Subtract the tween time by players ping so it's synced up on all clients
+	
+	info = TweenInfo.new(unpack(info))
+	
+	local success, errorStatement = pcall(function()
+		tween = ts:Create(object,info,properties)
+	end) --pcall allows us to see errors
+	
+	if (not success or not tween) and Settings.PrintErrors then
+		return warn("Check passed properties for tween: [" ..properties .."]")
+	end -- Print error statement since a lot of begginners are probably gonna use this.
+	
+	tween:Play() -- Play the tween
+	
+	local connection;  local function cancelTween(objectToBeCancelled)  if object == objectToBeCancelled then  if connection then connection:Disconnect(); connection = nil;  end  tween:Cancel(); tween = nil  end  end -- compressed function that cancels the tween
+	
+	if CancelEvent then
+		connection = CancelEvent.OnClientEvent:Connect(cancelTween)
+		
+		if info.RepeatCount >= 0 then --If repeats forever then will task.wait until is cancelled
+			for i = 1,(1 + info.RepeatCount) do
+				task.wait(info.Part)
+			end --task.wait until all repeats are done
+			if connection then
+				connection:Disconnect();
+				connection = nil;
+			end --Disconnect the end function since the tween finished
+		end
+	end
+end)]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004058</UniqueId>
+					</Properties>
+					<Item class="ObjectValue" referent="RBXCF3D880E70D043849D0ED9DB9497D1A9">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">Event</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004059</UniqueId>
+							<Ref name="Value">RBXBEF58AAFDACE4964BAD5E2BFBB3D1A51</Ref>
+						</Properties>
+					</Item>
+					<Item class="ObjectValue" referent="RBX1F8D3658A64F4718815F6EC5B5212A2B">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">Module</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca0000405a</UniqueId>
+							<Ref name="Value">RBXEF6734EB69DA4422B7290C11F98F220F</Ref>
+						</Properties>
+					</Item>
+				</Item>
+				<Item class="ModuleScript" referent="RBX2C4D453E01694354952A9641F3F9CF93">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">TickSyncer</string>
+						<string name="ScriptGuid">{C8099403-7650-4121-A13D-98CCE72924D6}</string>
+						<ProtectedString name="Source"><![CDATA[--Made by Quenty and not by me
+--- Syncronize time between client and servers so we can use a universal timestamp
+-- across the game.
+-- See: www.nist.gov/el/isd/ieee/upload/tutorial-basic.pdf
+-- @classmod TimeSyncManager
+-- @usage Use use just require the module, it's a singleton. Load TimeSyncManager on the server to use on the clients.
+
+local RunService = game:GetService("RunService")
+
+local MasterClock = {}
+MasterClock.__index = MasterClock
+MasterClock.ClassName = "MasterClock"
+
+function MasterClock.new(remoteEvent, remoteFunction)
+	local self = setmetatable({}, MasterClock)
+
+	self._remoteEvent = remoteEvent or error("No remoteEvent")
+	self._remoteFunction = remoteFunction or error("No remoteFunction")
+
+	self._remoteFunction.OnServerInvoke = function(player, timeThree)
+		return self:_handleDelayRequest(timeThree)
+	end
+	self._remoteEvent.OnServerEvent:Connect(function(player)
+		self._remoteEvent:FireClient(player, self:GetTime())
+	end)
+
+	coroutine.wrap(function()
+		while true do
+			task.wait(5)
+			self:Sync()
+		end
+	end)()
+
+	return self
+end
+
+--- Returns true if the manager has synced with the server
+-- @treturn boolean
+function MasterClock:IsSynced()
+	return true
+end
+
+--- Returns the sycncronized time
+-- @treturn number current time
+function MasterClock:GetTime()
+	return tick()
+end
+
+--- Starts the sync process with all slave clocks.
+function MasterClock:Sync()
+	local timeOne = self:GetTime()
+	--print("Syncing")
+    self._remoteEvent:FireAllClients(timeOne)
+end
+
+--- Client sends back message to get the SM_Difference.
+-- @return slaveMasterDifference
+function MasterClock:_handleDelayRequest(timeThree)
+    local TimeFour = self:GetTime()
+    return TimeFour - timeThree -- -offset + SM Delay
+end
+
+
+local SlaveClock = {}
+SlaveClock.__index = SlaveClock
+SlaveClock.ClassName = "SlaveClock"
+SlaveClock._offset = -1 -- Set uncalculated values to -1
+
+function SlaveClock.new(remoteEvent, remoteFunction)
+	local self = setmetatable({}, SlaveClock)
+
+	self._remoteEvent = remoteEvent or error("No remoteEvent")
+	self._remoteFunction = remoteFunction or error("No remoteFunction")
+
+	self._remoteEvent.OnClientEvent:Connect(function(timeOne)
+		self:_handleSyncEvent(timeOne)
+	end)
+
+	self._remoteEvent:FireServer() -- Request server to syncronize with us
+
+	return self
+end
+
+function SlaveClock:GetTime()
+	if not self:IsSynced() then
+		return self:_getLocalTime()
+	end
+
+	return self:_getLocalTime() - self._offset
+end
+
+function SlaveClock:IsSynced()
+	return self._offset ~= -1
+end
+
+function SlaveClock:_getLocalTime()
+    return tick()
+end
+
+function SlaveClock:_handleSyncEvent(timeOne)
+    local timeTwo = self:_getLocalTime() -- We can't actually get hardware stuff, so we'll send T1 immediately.
+    local masterSlaveDifference = timeTwo - timeOne -- We have Offst + MS Delay
+
+    local timeThree = self:_getLocalTime()
+    local slaveMasterDifference = self:_sendDelayRequest(timeThree)
+
+    --[[ From explination link.
+        The result is that we have the following two equations:
+        MS_difference = offset + MS delay
+        SM_difference = ?offset + SM delay
+        With two measured quantities:
+        MS_difference = 90 minutes
+        SM_difference = ?20 minutes
+        And three unknowns:
+        offset , MS delay, and SM delay
+        Rearrange the equations according to the tutorial.
+        -- Assuming this: MS delay = SM delay = one_way_delay
+        one_way_delay = (MSDelay + SMDelay) / 2
+    ]]
+
+    local offset = (masterSlaveDifference - slaveMasterDifference)/2
+    local oneWayDelay = (masterSlaveDifference + slaveMasterDifference)/2
+
+    self._offset = offset -- Estimated difference between server/client
+    self._pneWayDelay = oneWayDelay -- Estimated time for network events to send. (MSDelay/SMDelay)
+end
+
+function SlaveClock:_sendDelayRequest(timeThree)
+	return self._remoteFunction:InvokeServer(timeThree)
+end
+
+
+--- Return a singleton
+local function buildClock()
+
+	local remoteEvent = script:WaitForChild("TimeSyncEvent")
+	local remoteFunction = script:WaitForChild("DelayedRequestEvent")
+
+	if RunService:IsClient() and RunService:IsServer() then -- Solo test mode
+		local clock = MasterClock.new(remoteEvent, remoteFunction)
+		remoteEvent.OnClientEvent:Connect(function() end)
+		return clock
+	elseif RunService:IsClient() then
+		return SlaveClock.new(remoteEvent, remoteFunction)
+	else
+		return MasterClock.new(remoteEvent, remoteFunction)
+	end
+end
+
+return buildClock()
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca0000405b</UniqueId>
+					</Properties>
+					<Item class="RemoteEvent" referent="RBXB66A8F83FC88441D8B2D1F02C3219D19">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">TimeSyncEvent</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca0000405c</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="RemoteFunction" referent="RBX34905F1E2D3745D1A425D6901DECC12B">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">DelayedRequestEvent</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca0000405d</UniqueId>
+						</Properties>
+					</Item>
+				</Item>
+			</Item>
+			<Item class="Folder" referent="RBXCDE1D69FA558498DB440D86C710B6398">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6322,9 +6813,9 @@ return JanitorClass]]></ProtectedString>
 					<string name="Name">Knit</string>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
-					<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fbf</UniqueId>
+					<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044e5</UniqueId>
 				</Properties>
-				<Item class="ModuleScript" referent="RBXFA604CC65C4B4F9297FEEE63947F77F9">
+				<Item class="ModuleScript" referent="RBX3ADB500C55F343F3BE1FFBDB2E8B6256">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6332,15 +6823,15 @@ return JanitorClass]]></ProtectedString>
 						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">Comm</string>
-						<string name="ScriptGuid">{B12260FF-A255-41F1-911D-1BCFEC99111B}</string>
+						<string name="ScriptGuid">{4E9B3A66-A76E-4E53-BCE9-259605264371}</string>
 						<ProtectedString name="Source"><![CDATA[return require(script.Parent._Index["sleitnick_comm@0.3.2"]["comm"])
 ]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fc0</UniqueId>
+						<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044e6</UniqueId>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX5DB8264EE2544E6FA165B948922ABFAE">
+				<Item class="ModuleScript" referent="RBX12870F7380424D24B36532AB210F41B8">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6348,15 +6839,15 @@ return JanitorClass]]></ProtectedString>
 						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">Component</string>
-						<string name="ScriptGuid">{953C1898-A9B7-417D-B06D-4FD36E4DBC54}</string>
+						<string name="ScriptGuid">{BAF83E68-75AF-447D-9467-35B1A4F13E14}</string>
 						<ProtectedString name="Source"><![CDATA[return require(script.Parent._Index["sleitnick_component@2.4.6"]["component"])
 ]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fc1</UniqueId>
+						<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044e7</UniqueId>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBXE9867A349B5740FC8387732732CF825C">
+				<Item class="ModuleScript" referent="RBXFD4E2342ED0743F8AB6E0EF53174A3C4">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6364,15 +6855,15 @@ return JanitorClass]]></ProtectedString>
 						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">EnumList</string>
-						<string name="ScriptGuid">{D9CBDA19-A44B-407E-BC31-94F95224AE50}</string>
+						<string name="ScriptGuid">{21C7DB64-BA5B-4C02-94B9-08BFF13B1A6D}</string>
 						<ProtectedString name="Source"><![CDATA[return require(script.Parent._Index["sleitnick_enum-list@2.1.0"]["enum-list"])
 ]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fc2</UniqueId>
+						<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044e8</UniqueId>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX634294CC524247259E8ED4EB15AD32B1">
+				<Item class="ModuleScript" referent="RBXB38D21F95508434090E6087D559FC836">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6380,15 +6871,15 @@ return JanitorClass]]></ProtectedString>
 						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">Input</string>
-						<string name="ScriptGuid">{993D3A7B-121C-44D9-9108-896C0DD349DD}</string>
+						<string name="ScriptGuid">{E5877360-1CF3-462D-961E-6F354757B952}</string>
 						<ProtectedString name="Source"><![CDATA[return require(script.Parent._Index["sleitnick_input@2.1.1"]["input"])
 ]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fc3</UniqueId>
+						<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044e9</UniqueId>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX95CD0C6BD06C4B1E883D78CE3F611954">
+				<Item class="ModuleScript" referent="RBX1D2B3B1C7F4A484FA25967DE51B8C7DD">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6396,15 +6887,15 @@ return JanitorClass]]></ProtectedString>
 						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">Option</string>
-						<string name="ScriptGuid">{B0E6FB13-7046-44F2-AF4C-0BA5781718F7}</string>
+						<string name="ScriptGuid">{6536ACDE-D321-477A-A30E-80E65A7AF11E}</string>
 						<ProtectedString name="Source"><![CDATA[return require(script.Parent._Index["sleitnick_option@1.0.4"]["option"])
 ]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fc4</UniqueId>
+						<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044ea</UniqueId>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX923D329586DE4CC1B245FF1A6E273469">
+				<Item class="ModuleScript" referent="RBXB24C34650C474CC585F4DAF63AB45718">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6412,15 +6903,15 @@ return JanitorClass]]></ProtectedString>
 						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">Promise</string>
-						<string name="ScriptGuid">{8B071ACB-47E9-4892-AC92-35D70030709A}</string>
+						<string name="ScriptGuid">{08D4D322-741E-476D-8171-C8A8B167B8C3}</string>
 						<ProtectedString name="Source"><![CDATA[return require(script.Parent._Index["evaera_promise@4.0.0"]["promise"])
 ]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fc5</UniqueId>
+						<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044eb</UniqueId>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX260318FB453D4F75A6185C8B5763C45E">
+				<Item class="ModuleScript" referent="RBX317B14797015434CB8C2241EB6441174">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6428,15 +6919,15 @@ return JanitorClass]]></ProtectedString>
 						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">Signal</string>
-						<string name="ScriptGuid">{AB92CDCD-E422-402C-93C5-22DDB722DBD7}</string>
+						<string name="ScriptGuid">{E825F8F0-D664-40A0-9183-0BA2C2848003}</string>
 						<ProtectedString name="Source"><![CDATA[return require(script.Parent._Index["sleitnick_signal@1.5.0"]["signal"])
 ]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fc6</UniqueId>
+						<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044ec</UniqueId>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBXA4F1FA4EFACC4E36AF46867DE9086638">
+				<Item class="ModuleScript" referent="RBXA085481B54FE44C2B2A215ECF7051B8B">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6444,15 +6935,15 @@ return JanitorClass]]></ProtectedString>
 						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">Streamable</string>
-						<string name="ScriptGuid">{C7EC5DC1-763E-4386-9F8A-4C75A08B8EA4}</string>
+						<string name="ScriptGuid">{A4C19DF0-5490-43A5-B7A6-FDF2E2BB121B}</string>
 						<ProtectedString name="Source"><![CDATA[return require(script.Parent._Index["sleitnick_streamable@1.2.4"]["streamable"])
 ]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fc7</UniqueId>
+						<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044ed</UniqueId>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX73A75F41FEC24704B86516D2949A6E18">
+				<Item class="ModuleScript" referent="RBXCE09BC5217FA4AA5877F9D4EFDC3E3EC">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6460,15 +6951,15 @@ return JanitorClass]]></ProtectedString>
 						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">TableUtil</string>
-						<string name="ScriptGuid">{CA5FB630-D8D1-4DC0-A47E-CADA5BE5E3F3}</string>
+						<string name="ScriptGuid">{08A78DFA-2608-42FD-8CBC-27C7FD98D06B}</string>
 						<ProtectedString name="Source"><![CDATA[return require(script.Parent._Index["sleitnick_table-util@1.2.0"]["table-util"])
 ]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fc8</UniqueId>
+						<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044ee</UniqueId>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX2A74115616274D2F95AA04F9C7B2F6FF">
+				<Item class="ModuleScript" referent="RBX604C70609829498C99C098896A7B46D1">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6476,15 +6967,15 @@ return JanitorClass]]></ProtectedString>
 						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">Timer</string>
-						<string name="ScriptGuid">{726A067C-2D8D-4911-8AF7-A5195AD2BFFD}</string>
+						<string name="ScriptGuid">{E2D81C04-7AE8-428F-B071-25D8E28F6959}</string>
 						<ProtectedString name="Source"><![CDATA[return require(script.Parent._Index["sleitnick_timer@1.1.2"]["timer"])
 ]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fc9</UniqueId>
+						<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044ef</UniqueId>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX810458E4425B4DF0BB7C5BB74AD571DA">
+				<Item class="ModuleScript" referent="RBX6BCADB53B8B9481F94AB9122774FE88B">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6492,15 +6983,15 @@ return JanitorClass]]></ProtectedString>
 						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">Trove</string>
-						<string name="ScriptGuid">{1BE161D2-956C-4E42-9482-D7C9DE5DA0FE}</string>
+						<string name="ScriptGuid">{FE08B4D4-F7D2-413B-942D-418F09E413C4}</string>
 						<ProtectedString name="Source"><![CDATA[return require(script.Parent._Index["sleitnick_trove@1.0.1"]["trove"])
 ]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fca</UniqueId>
+						<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044f0</UniqueId>
 					</Properties>
 				</Item>
-				<Item class="Folder" referent="RBX801C2B91AF5D454C8FC26757341004BF">
+				<Item class="Folder" referent="RBX3E6381136C884667947111CC836E2FD7">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6509,9 +7000,9 @@ return JanitorClass]]></ProtectedString>
 						<string name="Name">_Index</string>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fcb</UniqueId>
+						<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044f1</UniqueId>
 					</Properties>
-					<Item class="Folder" referent="RBXBA3D41073CE34151BADD5D176D02BFA3">
+					<Item class="Folder" referent="RBXC754EEAA28CD4833A8A25960923F85FB">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6520,9 +7011,9 @@ return JanitorClass]]></ProtectedString>
 							<string name="Name">evaera_promise@4.0.0</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fcc</UniqueId>
+							<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044f2</UniqueId>
 						</Properties>
-						<Item class="ModuleScript" referent="RBXAB8E0CC1A6674C5EB5B80B019B6D9FA2">
+						<Item class="ModuleScript" referent="RBX1E49AA580F074A41A128A738E30E8FA1">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6530,7 +7021,7 @@ return JanitorClass]]></ProtectedString>
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">promise</string>
-								<string name="ScriptGuid">{5A843DD1-D0DC-47E0-8AE2-67A9CD6CB4F8}</string>
+								<string name="ScriptGuid">{C17ABC57-7BDD-44F3-A70C-EEB98C545BCA}</string>
 								<ProtectedString name="Source"><![CDATA[--[[
 	An implementation of Promises similar to Promise/A+.
 ]]
@@ -8602,9 +9093,9 @@ return Promise
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fcd</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044f3</UniqueId>
 							</Properties>
-							<Item class="ModuleScript" referent="RBX9E283B8809D64BF48E93F466D5F8B88E">
+							<Item class="ModuleScript" referent="RBX8C75750715A748A5AF7CA4D44F0C6398">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -8612,7 +9103,7 @@ return Promise
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">init.spec</string>
-									<string name="ScriptGuid">{F0C3805D-4B70-43CF-8646-B936C7FCC6CB}</string>
+									<string name="ScriptGuid">{F74023B4-B6B8-4A58-B5E9-BC72EB866DB0}</string>
 									<ProtectedString name="Source"><![CDATA[return function()
 	local Promise = require(script.Parent)
 	Promise.TEST = true
@@ -10460,12 +10951,12 @@ end
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fce</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044f4</UniqueId>
 								</Properties>
 							</Item>
 						</Item>
 					</Item>
-					<Item class="Folder" referent="RBXC3F04DB1149946BE9D1D621550D23987">
+					<Item class="Folder" referent="RBX75E6489D91CB4FAEA931638D4E97C67F">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -10474,9 +10965,9 @@ end
 							<string name="Name">sleitnick_comm@0.3.2</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fcf</UniqueId>
+							<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044f5</UniqueId>
 						</Properties>
-						<Item class="ModuleScript" referent="RBXF7A058C7D87B4BDC9EB410D94D5FBEF7">
+						<Item class="ModuleScript" referent="RBX36D16B790A0441BBA9F5AAA1A93C74F1">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -10484,15 +10975,15 @@ end
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">Option</string>
-								<string name="ScriptGuid">{DEE3CA2E-2503-4034-B483-FC241276F80A}</string>
+								<string name="ScriptGuid">{DFE9D4F5-B26D-4F80-8F19-726325CEE986}</string>
 								<ProtectedString name="Source"><![CDATA[return require(script.Parent.Parent["sleitnick_option@1.0.4"]["option"])
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fd0</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044f6</UniqueId>
 							</Properties>
 						</Item>
-						<Item class="ModuleScript" referent="RBXE81EE5E85886453CAC8AE11E42098C48">
+						<Item class="ModuleScript" referent="RBXF1CED80DBD8D4BE0A25D99D5FDF56953">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -10500,15 +10991,15 @@ end
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">Promise</string>
-								<string name="ScriptGuid">{B6F0C5C6-C8DD-432F-9BFF-FE2FEB544885}</string>
+								<string name="ScriptGuid">{490A5EF1-7EC9-42D3-B4A1-AFDE8162AE77}</string>
 								<ProtectedString name="Source"><![CDATA[return require(script.Parent.Parent["evaera_promise@4.0.0"]["promise"])
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fd1</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044f7</UniqueId>
 							</Properties>
 						</Item>
-						<Item class="ModuleScript" referent="RBXCBD11DBDA47E46AFA2F537D52BA784F9">
+						<Item class="ModuleScript" referent="RBX00DA773BEBFA4AA08A8B350731F70814">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -10516,15 +11007,15 @@ end
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">Signal</string>
-								<string name="ScriptGuid">{E9FD3244-1D9A-4333-AF61-75CCF1F7028B}</string>
+								<string name="ScriptGuid">{BED2FD59-65EC-4022-8CA4-7FE526FC038E}</string>
 								<ProtectedString name="Source"><![CDATA[return require(script.Parent.Parent["sleitnick_signal@1.5.0"]["signal"])
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fd2</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044f8</UniqueId>
 							</Properties>
 						</Item>
-						<Item class="ModuleScript" referent="RBX7BD917BBAD8348A88AFB6318A3EBA595">
+						<Item class="ModuleScript" referent="RBXAD344A29232B4EA68B3FCCAF2BF67F89">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -10532,7 +11023,7 @@ end
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">comm</string>
-								<string name="ScriptGuid">{6A4EF996-50A6-4039-9CAA-67150181306F}</string>
+								<string name="ScriptGuid">{486DAEE5-8614-4CD9-AED2-789D9659C206}</string>
 								<ProtectedString name="Source"><![CDATA[-- Comm
 -- Stephen Leitnick
 -- August 05, 2021
@@ -10571,9 +11062,9 @@ return Comm
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fd3</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044f9</UniqueId>
 							</Properties>
-							<Item class="ModuleScript" referent="RBXAF51D75B700B400CB1E7A5EA09A4FB8C">
+							<Item class="ModuleScript" referent="RBX70698C5063F54545A2BC7077C87F6255">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -10581,7 +11072,7 @@ return Comm
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">Client</string>
-									<string name="ScriptGuid">{5D3AD7A0-F840-4064-9EC4-14FC7CF679DD}</string>
+									<string name="ScriptGuid">{1A3CC25F-AE09-499D-A6F4-400C5FAE2C9C}</string>
 									<ProtectedString name="Source"><![CDATA[local Util = require(script.Parent.Util)
 local Types = require(script.Parent.Types)
 local Promise = require(script.Parent.Parent.Promise)
@@ -10720,9 +11211,9 @@ return Client
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fd4</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044fa</UniqueId>
 								</Properties>
-								<Item class="ModuleScript" referent="RBX1307674D31CA48ABA6CF52DC1A8B5AE7">
+								<Item class="ModuleScript" referent="RBX039A854B1F854935BA32B782BCA9EDDE">
 									<Properties>
 										<BinaryString name="AttributesSerialize"></BinaryString>
 										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -10730,7 +11221,7 @@ return Client
 										<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 										<Content name="LinkedSource"><null></null></Content>
 										<string name="Name">ClientComm</string>
-										<string name="ScriptGuid">{0756AE7C-DBF1-423F-9C58-065F78B01A52}</string>
+										<string name="ScriptGuid">{D5958781-4905-4350-B93A-066976202D56}</string>
 										<ProtectedString name="Source"><![CDATA[-- ClientComm
 -- Stephen Leitnick
 -- December 20, 2021
@@ -10966,10 +11457,10 @@ return ClientComm
 ]]></ProtectedString>
 										<int64 name="SourceAssetId">-1</int64>
 										<BinaryString name="Tags"></BinaryString>
-										<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fd5</UniqueId>
+										<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044fb</UniqueId>
 									</Properties>
 								</Item>
-								<Item class="ModuleScript" referent="RBXC081C2C118204E9BA848874ECE5AB1E1">
+								<Item class="ModuleScript" referent="RBXB0CEAF7ED9DF4E96BF71653FB7B4C018">
 									<Properties>
 										<BinaryString name="AttributesSerialize"></BinaryString>
 										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -10977,7 +11468,7 @@ return ClientComm
 										<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 										<Content name="LinkedSource"><null></null></Content>
 										<string name="Name">ClientRemoteProperty</string>
-										<string name="ScriptGuid">{3B773173-3E59-4E6B-B796-54EB2FA2E74C}</string>
+										<string name="ScriptGuid">{06DF9C2D-2A6A-4D82-805F-6D5CC2668DB3}</string>
 										<ProtectedString name="Source"><![CDATA[-- ClientRemoteProperty
 -- Stephen Leitnick
 -- December 20, 2021
@@ -11137,10 +11628,10 @@ return ClientRemoteProperty
 ]]></ProtectedString>
 										<int64 name="SourceAssetId">-1</int64>
 										<BinaryString name="Tags"></BinaryString>
-										<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fd6</UniqueId>
+										<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044fc</UniqueId>
 									</Properties>
 								</Item>
-								<Item class="ModuleScript" referent="RBX06F50F8D58AC484997B406CC66F20B77">
+								<Item class="ModuleScript" referent="RBX3CEEEB5CC1DD4C249AA136CC198979B6">
 									<Properties>
 										<BinaryString name="AttributesSerialize"></BinaryString>
 										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -11148,7 +11639,7 @@ return ClientRemoteProperty
 										<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 										<Content name="LinkedSource"><null></null></Content>
 										<string name="Name">ClientRemoteSignal</string>
-										<string name="ScriptGuid">{1B629576-686E-42A0-A953-A85EC341F6BE}</string>
+										<string name="ScriptGuid">{93FC9FD4-86D1-402F-9ACB-F668A4DF4A06}</string>
 										<ProtectedString name="Source"><![CDATA[-- ClientRemoteSignal
 -- Stephen Leitnick
 -- December 20, 2021
@@ -11259,11 +11750,11 @@ return ClientRemoteSignal
 ]]></ProtectedString>
 										<int64 name="SourceAssetId">-1</int64>
 										<BinaryString name="Tags"></BinaryString>
-										<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fd7</UniqueId>
+										<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044fd</UniqueId>
 									</Properties>
 								</Item>
 							</Item>
-							<Item class="ModuleScript" referent="RBX89C593D6AD084045AE2240F5813EF3D1">
+							<Item class="ModuleScript" referent="RBX047CA68AEEEB475791C3C32BC71D15D7">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -11271,7 +11762,7 @@ return ClientRemoteSignal
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">Server</string>
-									<string name="ScriptGuid">{353B7147-D092-4C1D-9ECF-3985E7184BDB}</string>
+									<string name="ScriptGuid">{03404F16-D925-471F-BEB4-9E0136C3C710}</string>
 									<ProtectedString name="Source"><![CDATA[local Util = require(script.Parent.Util)
 local RemoteSignal = require(script.RemoteSignal)
 local RemoteProperty = require(script.RemoteProperty)
@@ -11414,9 +11905,9 @@ return Server
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fd8</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044fe</UniqueId>
 								</Properties>
-								<Item class="ModuleScript" referent="RBXB6833D15D8A540E0A2A1A226C535450E">
+								<Item class="ModuleScript" referent="RBXE8D0B55A407F4A38983AC4A52860856A">
 									<Properties>
 										<BinaryString name="AttributesSerialize"></BinaryString>
 										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -11424,7 +11915,7 @@ return Server
 										<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 										<Content name="LinkedSource"><null></null></Content>
 										<string name="Name">RemoteProperty</string>
-										<string name="ScriptGuid">{BE21A998-6A9B-47C7-9FB5-754CE0F47018}</string>
+										<string name="ScriptGuid">{D724C033-06DE-4CA0-B3E4-E555C1EDFE77}</string>
 										<ProtectedString name="Source"><![CDATA[-- RemoteProperty
 -- Stephen Leitnick
 -- December 20, 2021
@@ -11723,10 +12214,10 @@ return RemoteProperty
 ]]></ProtectedString>
 										<int64 name="SourceAssetId">-1</int64>
 										<BinaryString name="Tags"></BinaryString>
-										<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fd9</UniqueId>
+										<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d000044ff</UniqueId>
 									</Properties>
 								</Item>
-								<Item class="ModuleScript" referent="RBX9F9912A83827481C9A25431E12147091">
+								<Item class="ModuleScript" referent="RBX85DE903C9A4B4635BB2DF90DA18B77E1">
 									<Properties>
 										<BinaryString name="AttributesSerialize"></BinaryString>
 										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -11734,7 +12225,7 @@ return RemoteProperty
 										<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 										<Content name="LinkedSource"><null></null></Content>
 										<string name="Name">RemoteSignal</string>
-										<string name="ScriptGuid">{824BDCAC-21E0-471B-9FFB-62A507230CB2}</string>
+										<string name="ScriptGuid">{A26CF92C-2B46-43D6-AA32-031DFD601C46}</string>
 										<ProtectedString name="Source"><![CDATA[-- RemoteSignal
 -- Stephen Leitnick
 -- December 20, 2021
@@ -11937,10 +12428,10 @@ return RemoteSignal
 ]]></ProtectedString>
 										<int64 name="SourceAssetId">-1</int64>
 										<BinaryString name="Tags"></BinaryString>
-										<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fda</UniqueId>
+										<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004500</UniqueId>
 									</Properties>
 								</Item>
-								<Item class="ModuleScript" referent="RBXD546FC15F5C54523AE57242D63827AE1">
+								<Item class="ModuleScript" referent="RBX2525A0E8AA984B828E5AD7EED6D70AC1">
 									<Properties>
 										<BinaryString name="AttributesSerialize"></BinaryString>
 										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -11948,7 +12439,7 @@ return RemoteSignal
 										<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 										<Content name="LinkedSource"><null></null></Content>
 										<string name="Name">ServerComm</string>
-										<string name="ScriptGuid">{8E50889C-7861-4A3A-ADBA-2C4B358603B1}</string>
+										<string name="ScriptGuid">{739A5255-28E0-4457-83B5-8069A2BB661E}</string>
 										<ProtectedString name="Source"><![CDATA[-- ServerComm
 -- Stephen Leitnick
 -- December 20, 2021
@@ -12157,11 +12648,11 @@ return ServerComm
 ]]></ProtectedString>
 										<int64 name="SourceAssetId">-1</int64>
 										<BinaryString name="Tags"></BinaryString>
-										<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fdb</UniqueId>
+										<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004501</UniqueId>
 									</Properties>
 								</Item>
 							</Item>
-							<Item class="ModuleScript" referent="RBX669DED177DF24B59A18DD1EBDD5D2171">
+							<Item class="ModuleScript" referent="RBX3EA433FE9E954ACE9F93BBB08ABD0364">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -12169,7 +12660,7 @@ return ServerComm
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">Types</string>
-									<string name="ScriptGuid">{A49D6169-7DB1-448B-88A1-065ABFC9603D}</string>
+									<string name="ScriptGuid">{1020B5DA-ADDB-4DD6-9ABB-E92FC1526AC6}</string>
 									<ProtectedString name="Source"><![CDATA[-- Types
 -- Stephen Leitnick
 -- December 20, 2021
@@ -12191,10 +12682,10 @@ return nil
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fdc</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004502</UniqueId>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBXE203156B1FEE4B04AB599B8A87D9B4B2">
+							<Item class="ModuleScript" referent="RBX4B508A81E1954536A105A83A4D193C11">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -12202,7 +12693,7 @@ return nil
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">Util</string>
-									<string name="ScriptGuid">{F6C8005E-3452-4A62-9551-1C941420040B}</string>
+									<string name="ScriptGuid">{7790D0DD-278F-454A-B347-09B6508DFC8D}</string>
 									<ProtectedString name="Source"><![CDATA[local RunService = game:GetService("RunService")
 
 local Option = require(script.Parent.Parent.Option)
@@ -12233,12 +12724,12 @@ return Util
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fdd</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004503</UniqueId>
 								</Properties>
 							</Item>
 						</Item>
 					</Item>
-					<Item class="Folder" referent="RBXB7D708BD6E7F45BBA27CE91B69781EAB">
+					<Item class="Folder" referent="RBX45CC514D3DE34229A9EF6D5BCF653E18">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -12247,9 +12738,9 @@ return Util
 							<string name="Name">sleitnick_component@2.4.6</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fde</UniqueId>
+							<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004504</UniqueId>
 						</Properties>
-						<Item class="ModuleScript" referent="RBX7361B82CCFDE4980AB3F55A943777F10">
+						<Item class="ModuleScript" referent="RBX941DB8E1BB3647D8AC53FDCFDEF0A172">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -12257,15 +12748,15 @@ return Util
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">Promise</string>
-								<string name="ScriptGuid">{E7B22E62-DE34-4831-AD1C-ACC937442D57}</string>
+								<string name="ScriptGuid">{7A9DA0D3-AA63-4A4D-A51B-3EE64407AE61}</string>
 								<ProtectedString name="Source"><![CDATA[return require(script.Parent.Parent["evaera_promise@4.0.0"]["promise"])
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fdf</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004505</UniqueId>
 							</Properties>
 						</Item>
-						<Item class="ModuleScript" referent="RBX2F19B002EF4B49D3B5C0CBE472CCD023">
+						<Item class="ModuleScript" referent="RBX3C1D76E119224B228E7F474F16A2DC90">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -12273,15 +12764,15 @@ return Util
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">Signal</string>
-								<string name="ScriptGuid">{252753E7-9356-4ABF-8C93-8959AD493BD2}</string>
+								<string name="ScriptGuid">{1CBFCE47-B2D8-4D34-9030-ECB9C42C1E55}</string>
 								<ProtectedString name="Source"><![CDATA[return require(script.Parent.Parent["sleitnick_signal@1.5.0"]["signal"])
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fe0</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004506</UniqueId>
 							</Properties>
 						</Item>
-						<Item class="ModuleScript" referent="RBX2A08376ED1D64B678696F0412174A2D4">
+						<Item class="ModuleScript" referent="RBX8A558D6B28D54543A831B4EFECD65060">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -12289,15 +12780,15 @@ return Util
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">Symbol</string>
-								<string name="ScriptGuid">{4ABC9D69-A850-47AC-AF10-1A5419579A5A}</string>
+								<string name="ScriptGuid">{7FA1180F-0935-4A55-83B6-B61900393DB8}</string>
 								<ProtectedString name="Source"><![CDATA[return require(script.Parent.Parent["sleitnick_symbol@2.0.1"]["symbol"])
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fe1</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004507</UniqueId>
 							</Properties>
 						</Item>
-						<Item class="ModuleScript" referent="RBXBF3D28300B844FD5A731A47CFE0D4D2D">
+						<Item class="ModuleScript" referent="RBXDBCB8859397C41F392A18ACB59DEAFC0">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -12305,15 +12796,15 @@ return Util
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">Trove</string>
-								<string name="ScriptGuid">{A7BBF508-94A9-491F-B904-3F46F2BA7E83}</string>
+								<string name="ScriptGuid">{4B28EB06-CA88-4A22-B1A6-9E72FCDC32B2}</string>
 								<ProtectedString name="Source"><![CDATA[return require(script.Parent.Parent["sleitnick_trove@0.4.2"]["trove"])
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fe2</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004508</UniqueId>
 							</Properties>
 						</Item>
-						<Item class="ModuleScript" referent="RBX6DBD71ACB95F4434BAD48280DC2675A0">
+						<Item class="ModuleScript" referent="RBXBC7D1AF8E12B4B239C61EF36A3AFD1D3">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -12321,7 +12812,7 @@ return Util
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">component</string>
-								<string name="ScriptGuid">{BD881CD0-955E-43A1-AC86-187F0338FC11}</string>
+								<string name="ScriptGuid">{95017CC4-7C10-4293-BE75-C6FB244CDD27}</string>
 								<ProtectedString name="Source"><![CDATA[-- Component
 -- Stephen Leitnick
 -- November 26, 2021
@@ -13048,9 +13539,9 @@ return Component
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fe3</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004509</UniqueId>
 							</Properties>
-							<Item class="ModuleScript" referent="RBXC3ED420566D147EB91DCAF54655EBE38">
+							<Item class="ModuleScript" referent="RBXFC3F5733875741F095B491FF6B00AF31">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -13058,7 +13549,7 @@ return Component
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">init.spec</string>
-									<string name="ScriptGuid">{8B47F70B-E279-459A-A130-D99A122F0AC4}</string>
+									<string name="ScriptGuid">{CA8EEBF0-4F0F-4ED2-B46C-9EA0128454CD}</string>
 									<ProtectedString name="Source"><![CDATA[return function()
 	local Component = require(script.Parent)
 
@@ -13370,12 +13861,12 @@ end
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fe4</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d0000450a</UniqueId>
 								</Properties>
 							</Item>
 						</Item>
 					</Item>
-					<Item class="Folder" referent="RBXC556313288934F2CA0FF13089017B2E9">
+					<Item class="Folder" referent="RBX129980CF0DD546619773D42A5996016F">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -13384,9 +13875,9 @@ end
 							<string name="Name">sleitnick_enum-list@2.1.0</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fe5</UniqueId>
+							<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d0000450b</UniqueId>
 						</Properties>
-						<Item class="ModuleScript" referent="RBXFCD20C8309A343C38CE99AA10FECED61">
+						<Item class="ModuleScript" referent="RBX43624D682A5D4532BE62D9BE8CCDE5AD">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -13394,7 +13885,7 @@ end
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">enum-list</string>
-								<string name="ScriptGuid">{DC4D30BA-75B6-43F0-B71C-7752170788DE}</string>
+								<string name="ScriptGuid">{3FC993A5-A3AD-40CE-8F01-79BFB0AF0B1B}</string>
 								<ProtectedString name="Source"><![CDATA[-- EnumList
 -- Stephen Leitnick
 -- January 08, 2021
@@ -13499,9 +13990,9 @@ return EnumList
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fe6</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d0000450c</UniqueId>
 							</Properties>
-							<Item class="ModuleScript" referent="RBXE5771E03513E4A02A1577220729F9A01">
+							<Item class="ModuleScript" referent="RBXC054681A9BFC417BA416C2B215665E6D">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -13509,7 +14000,7 @@ return EnumList
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">init.spec</string>
-									<string name="ScriptGuid">{B9D1D718-0581-422C-979E-C28408D9F96E}</string>
+									<string name="ScriptGuid">{BE0148FF-82B3-4996-9B32-FD86636198D7}</string>
 									<ProtectedString name="Source"><![CDATA[return function()
 	local EnumList = require(script.Parent)
 
@@ -13596,12 +14087,12 @@ end
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fe7</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d0000450d</UniqueId>
 								</Properties>
 							</Item>
 						</Item>
 					</Item>
-					<Item class="Folder" referent="RBX27509E50AF70460C938340632CD71DDA">
+					<Item class="Folder" referent="RBX60CB4827E26A49DC906A2E793E49D5F6">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -13610,9 +14101,9 @@ end
 							<string name="Name">sleitnick_input@2.1.1</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fe8</UniqueId>
+							<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d0000450e</UniqueId>
 						</Properties>
-						<Item class="ModuleScript" referent="RBX33A7CB8B61914706871F78C17CA46617">
+						<Item class="ModuleScript" referent="RBX8269426AA1994EAE988292AEA90D9C60">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -13620,15 +14111,15 @@ end
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">Signal</string>
-								<string name="ScriptGuid">{B7E5576F-90FD-40C6-A93D-E344DDEE1719}</string>
+								<string name="ScriptGuid">{C4738F98-1B73-4C4A-B658-0F8385F84E44}</string>
 								<ProtectedString name="Source"><![CDATA[return require(script.Parent.Parent["sleitnick_signal@1.5.0"]["signal"])
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fe9</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d0000450f</UniqueId>
 							</Properties>
 						</Item>
-						<Item class="ModuleScript" referent="RBX5FC688DB6EB34FCDBA99E2EC22D18F8F">
+						<Item class="ModuleScript" referent="RBX0652E14974CF43028D144D768EB9D357">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -13636,15 +14127,15 @@ end
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">Trove</string>
-								<string name="ScriptGuid">{02F20179-F3A3-4DD0-8501-E6F04822C918}</string>
+								<string name="ScriptGuid">{10F31709-7AD1-4962-B5C9-381EC887CAC4}</string>
 								<ProtectedString name="Source"><![CDATA[return require(script.Parent.Parent["sleitnick_trove@0.4.2"]["trove"])
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fea</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004510</UniqueId>
 							</Properties>
 						</Item>
-						<Item class="ModuleScript" referent="RBXE7DEA0D6D4D6414AA8C9056A8389CE6D">
+						<Item class="ModuleScript" referent="RBXDE0053FD3DCC42648620A610BB2D1108">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -13652,7 +14143,7 @@ end
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">input</string>
-								<string name="ScriptGuid">{049A4A62-C8B9-4A2D-9893-36AB5649A17F}</string>
+								<string name="ScriptGuid">{0CB47993-B963-4EAB-B481-57D46AA9D553}</string>
 								<ProtectedString name="Source"><![CDATA[-- Input
 -- Stephen Leitnick
 -- October 10, 2021
@@ -13689,9 +14180,9 @@ return {
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003feb</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004511</UniqueId>
 							</Properties>
-							<Item class="ModuleScript" referent="RBX9CB6D80C50A5452DB1C4541AFD122795">
+							<Item class="ModuleScript" referent="RBXA75422A1141A42EFA1C8EBF650B1DB9A">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -13699,7 +14190,7 @@ return {
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">Gamepad</string>
-									<string name="ScriptGuid">{A6948D22-13EA-499D-92F4-E9E932F73591}</string>
+									<string name="ScriptGuid">{BF3A7C7F-D720-4425-8513-B4C02A3E004D}</string>
 									<ProtectedString name="Source"><![CDATA[-- Gamepad
 -- Stephen Leitnick
 -- December 23, 2021
@@ -14256,10 +14747,10 @@ return Gamepad
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fec</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004512</UniqueId>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX78B2B89271CB4748943391012571CB5F">
+							<Item class="ModuleScript" referent="RBX89C3226FF4E04FE3BAFE70E5C49DF2CB">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -14267,7 +14758,7 @@ return Gamepad
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">Keyboard</string>
-									<string name="ScriptGuid">{11D4CF6E-66B7-42D7-83E3-735A3BDFB3FB}</string>
+									<string name="ScriptGuid">{508DBA85-7D24-464B-99AC-33B2FCD8D8C5}</string>
 									<ProtectedString name="Source"><![CDATA[-- Keyboard
 -- Stephen Leitnick
 -- October 10, 2021
@@ -14401,10 +14892,10 @@ return Keyboard
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fed</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004513</UniqueId>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX59C054B0607840BA84DEB61630349D90">
+							<Item class="ModuleScript" referent="RBX43B13BB232CA482A85154227089F30CC">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -14412,7 +14903,7 @@ return Keyboard
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">Mouse</string>
-									<string name="ScriptGuid">{A542F13C-997C-4152-910A-D51DE2229BC9}</string>
+									<string name="ScriptGuid">{7AD84024-4CB5-460C-B38C-ECFDB0240ACB}</string>
 									<ProtectedString name="Source"><![CDATA[-- Mouse
 -- Stephen Leitnick
 -- November 07, 2020
@@ -14665,10 +15156,10 @@ return Mouse
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fee</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004514</UniqueId>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX49FF6E930407495EAA64A24DF3049E87">
+							<Item class="ModuleScript" referent="RBX5AC12E307B8C47F49C56793A4AC456C5">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -14676,7 +15167,7 @@ return Mouse
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">PreferredInput</string>
-									<string name="ScriptGuid">{8F94B2A3-63BD-4FEF-A414-BE5ED8B4D0E0}</string>
+									<string name="ScriptGuid">{D55FE300-6BB7-4C71-88D6-0E73158331E7}</string>
 									<ProtectedString name="Source"><![CDATA[--!strict
 
 -- PreferredInput
@@ -14800,10 +15291,10 @@ return PreferredInput
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fef</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004515</UniqueId>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBXC8B2F5B0C15A446AA84011976CBA1A52">
+							<Item class="ModuleScript" referent="RBX58956E010C014BD9AEC8FD83EA0399C3">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -14811,7 +15302,7 @@ return PreferredInput
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">Touch</string>
-									<string name="ScriptGuid">{A4D90180-E9C6-4FD9-8FC2-017C9B6F62AE}</string>
+									<string name="ScriptGuid">{B4D0ADB8-9BD1-4449-A1F5-2D07574E68C2}</string>
 									<ProtectedString name="Source"><![CDATA[-- Touch
 -- Stephen Leitnick
 -- March 14, 2021
@@ -14935,12 +15426,12 @@ return Touch
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003ff0</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004516</UniqueId>
 								</Properties>
 							</Item>
 						</Item>
 					</Item>
-					<Item class="Folder" referent="RBX0C153C9CBE3D49FB9289DCD0F3F41C37">
+					<Item class="Folder" referent="RBX55FFD73838C64ACF969A7655BAEE5DE2">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -14949,9 +15440,9 @@ return Touch
 							<string name="Name">sleitnick_option@1.0.4</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003ff1</UniqueId>
+							<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004517</UniqueId>
 						</Properties>
-						<Item class="ModuleScript" referent="RBX468428A25DEE4A92B2052603094735DB">
+						<Item class="ModuleScript" referent="RBXC3D8F2F26A144CF4BE7471FFEF1407FE">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -14959,7 +15450,7 @@ return Touch
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">option</string>
-								<string name="ScriptGuid">{C02878B3-357E-4B41-9DA7-DF85E175F200}</string>
+								<string name="ScriptGuid">{7A2D9050-A164-4474-AE09-C0FB8BDB2759}</string>
 								<ProtectedString name="Source"><![CDATA[-- Option
 -- Stephen Leitnick
 -- August 28, 2020
@@ -15410,9 +15901,9 @@ return Option
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003ff2</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004518</UniqueId>
 							</Properties>
-							<Item class="ModuleScript" referent="RBX82D53083C21C42C3835229A49B3E5EC5">
+							<Item class="ModuleScript" referent="RBX2DC5CE2E4DB747BA9F6E43E9751E35C6">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -15420,7 +15911,7 @@ return Option
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">init.spec</string>
-									<string name="ScriptGuid">{3F31118A-F225-42E0-B81A-BC1F8744C6BD}</string>
+									<string name="ScriptGuid">{775D9A0F-89E7-40B1-8AB5-DA40E4721968}</string>
 									<ProtectedString name="Source"><![CDATA[return function()
 	local Option = require(script.Parent)
 
@@ -15754,12 +16245,12 @@ end
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003ff3</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004519</UniqueId>
 								</Properties>
 							</Item>
 						</Item>
 					</Item>
-					<Item class="Folder" referent="RBX2D63DCAAF9F346C1875F7E1320577FD4">
+					<Item class="Folder" referent="RBX523FC766E4FB4C1C9B7F0AEFB941B0B3">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -15768,9 +16259,9 @@ end
 							<string name="Name">sleitnick_signal@1.5.0</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003ff4</UniqueId>
+							<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d0000451a</UniqueId>
 						</Properties>
-						<Item class="ModuleScript" referent="RBXF72EFEED4D6F4C19A554B37F78D30767">
+						<Item class="ModuleScript" referent="RBX848A4E7295FA450C825E8A61B6F6C53F">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -15778,7 +16269,7 @@ end
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">signal</string>
-								<string name="ScriptGuid">{0E77153D-01C6-4671-94BB-C1F5B5B213A9}</string>
+								<string name="ScriptGuid">{FF5DF7EC-180D-4FEF-A6C5-31C3F494B572}</string>
 								<ProtectedString name="Source"><![CDATA[-- -----------------------------------------------------------------------------
 --               Batched Yield-Safe Signal Implementation                     --
 -- This is a Signal class which has effectively identical behavior to a       --
@@ -16187,9 +16678,9 @@ return {
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003ff5</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d0000451b</UniqueId>
 							</Properties>
-							<Item class="ModuleScript" referent="RBX38DE0253E508404BACCCBB88565AD393">
+							<Item class="ModuleScript" referent="RBXE9083E976BA5478C9886D35373FEFAE6">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16197,7 +16688,7 @@ return {
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">init.spec</string>
-									<string name="ScriptGuid">{42383933-6B22-405D-95A6-8700C37ABBD1}</string>
+									<string name="ScriptGuid">{31BFED33-7BF6-4B4E-A8D9-7CF2A2B3F22F}</string>
 									<ProtectedString name="Source"><![CDATA[local function AwaitCondition(predicate, timeout)
 	local start = os.clock()
 	timeout = (timeout or 10)
@@ -16387,12 +16878,12 @@ end
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003ff6</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d0000451c</UniqueId>
 								</Properties>
 							</Item>
 						</Item>
 					</Item>
-					<Item class="Folder" referent="RBX6591F18040BB4AA8B4E0E1332FDB1460">
+					<Item class="Folder" referent="RBX62E3176311DB45E4839668474D179EA5">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16401,9 +16892,9 @@ end
 							<string name="Name">sleitnick_streamable@1.2.4</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003ff7</UniqueId>
+							<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d0000451d</UniqueId>
 						</Properties>
-						<Item class="ModuleScript" referent="RBX5B2687401587431A91BB5654ABF513D2">
+						<Item class="ModuleScript" referent="RBX1D9454F9E6DD48948693E0A7AC34FD27">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16411,15 +16902,15 @@ end
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">Signal</string>
-								<string name="ScriptGuid">{CFA90078-A68A-4AE9-BD03-A63499918919}</string>
+								<string name="ScriptGuid">{6653C43D-97F2-4574-AD72-50203AAAEC0C}</string>
 								<ProtectedString name="Source"><![CDATA[return require(script.Parent.Parent["sleitnick_signal@1.5.0"]["signal"])
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003ff8</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d0000451e</UniqueId>
 							</Properties>
 						</Item>
-						<Item class="ModuleScript" referent="RBX3A159860C627441B8A1682C77E4CB2A8">
+						<Item class="ModuleScript" referent="RBXE3447D7573EE480D850168597241DA7C">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16427,15 +16918,15 @@ end
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">Trove</string>
-								<string name="ScriptGuid">{F961B53B-3A01-4FC3-A935-6434C7E40F70}</string>
+								<string name="ScriptGuid">{BEDFB8C6-B26A-49ED-B7BF-77E2AE93B839}</string>
 								<ProtectedString name="Source"><![CDATA[return require(script.Parent.Parent["sleitnick_trove@0.4.2"]["trove"])
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003ff9</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d0000451f</UniqueId>
 							</Properties>
 						</Item>
-						<Item class="ModuleScript" referent="RBXCA76B133D1AD42A8BAB9B3C61BC4DFC5">
+						<Item class="ModuleScript" referent="RBX243D4B99EF7F488C9896EB9001F810DB">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16443,7 +16934,7 @@ end
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">streamable</string>
-								<string name="ScriptGuid">{B73C8EE8-AD69-4E27-81E2-EE2BA0144B6E}</string>
+								<string name="ScriptGuid">{73B6BFBE-F58C-40AC-A57D-C78A3A7E0456}</string>
 								<ProtectedString name="Source"><![CDATA[-- Streamable
 -- Stephen Leitnick
 -- November 08, 2021
@@ -16455,9 +16946,9 @@ return {
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003ffa</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004520</UniqueId>
 							</Properties>
-							<Item class="ModuleScript" referent="RBXD3C8D9CBF0C646F59C29B178945A9BF1">
+							<Item class="ModuleScript" referent="RBXEB9A74F154544D628B98A3A00E61375D">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16465,7 +16956,7 @@ return {
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">Streamable</string>
-									<string name="ScriptGuid">{2DE544FA-FB97-428E-B763-B23EB8F9C0D3}</string>
+									<string name="ScriptGuid">{BD7AEDC1-4B78-4EF8-8094-7AD65C837343}</string>
 									<ProtectedString name="Source"><![CDATA[--!strict
 
 -- Streamable
@@ -16671,10 +17162,10 @@ return Streamable
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003ffb</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004521</UniqueId>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX438A40F2E3064967A6B82F196E26741F">
+							<Item class="ModuleScript" referent="RBX2DFBB41D5C534AB7B79E57F3BB6870B1">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16682,7 +17173,7 @@ return Streamable
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">Streamable.spec</string>
-									<string name="ScriptGuid">{64D85724-9FA7-446E-A00F-F996FB816A8A}</string>
+									<string name="ScriptGuid">{ED2928B9-73D1-4A83-B4D6-68403C10084A}</string>
 									<ProtectedString name="Source"><![CDATA[return function()
 	local Streamable = require(script.Parent.Streamable)
 
@@ -16823,10 +17314,10 @@ end
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003ffc</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004522</UniqueId>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX7C7635570BFD42B3AFA0B0CEE6F1D34D">
+							<Item class="ModuleScript" referent="RBX92A6DDF3EE2A4256AD1D96D773781048">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16834,7 +17325,7 @@ end
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">StreamableUtil</string>
-									<string name="ScriptGuid">{85BC4C2C-4729-4DB0-B7C8-470CB07089E0}</string>
+									<string name="ScriptGuid">{BBF92BED-3634-494C-9E32-72D4B59DC047}</string>
 									<ProtectedString name="Source"><![CDATA[--!strict
 
 -- StreamableUtil
@@ -16918,10 +17409,10 @@ return StreamableUtil
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003ffd</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004523</UniqueId>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX9CEAF6F495534D538F871A625DB6197A">
+							<Item class="ModuleScript" referent="RBX7E219C2EEB954D85ACB07925C02652A0">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16929,7 +17420,7 @@ return StreamableUtil
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">StreamableUtil.spec</string>
-									<string name="ScriptGuid">{3E025EC6-5CF2-424A-9345-95B9A63417A5}</string>
+									<string name="ScriptGuid">{C9A6318E-1AFE-488E-B2D0-A53B16EF9CDA}</string>
 									<ProtectedString name="Source"><![CDATA[return function()
 	local Streamable = require(script.Parent.Streamable)
 	local StreamableUtil = require(script.Parent.StreamableUtil)
@@ -16993,12 +17484,12 @@ end
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003ffe</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004524</UniqueId>
 								</Properties>
 							</Item>
 						</Item>
 					</Item>
-					<Item class="Folder" referent="RBX0664581D4C644CBD8FD463DB4DF4AEDB">
+					<Item class="Folder" referent="RBX14C3E5F925384EF8A3E118E77E9E9B07">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -17007,9 +17498,9 @@ end
 							<string name="Name">sleitnick_symbol@2.0.1</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00003fff</UniqueId>
+							<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004525</UniqueId>
 						</Properties>
-						<Item class="ModuleScript" referent="RBX0920A7FDBF674F8CADB434B3BEFC335C">
+						<Item class="ModuleScript" referent="RBX62A938A2153642EF8E8ACC99EC6EE118">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -17017,7 +17508,7 @@ end
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">symbol</string>
-								<string name="ScriptGuid">{F2CC067C-80DB-4B1D-BC40-2102F0DB559C}</string>
+								<string name="ScriptGuid">{FC387BF9-5529-44A3-B72A-CCFCE7014C54}</string>
 								<ProtectedString name="Source"><![CDATA[-- Symbol
 -- Stephen Leitnick
 -- January 04, 2022
@@ -17077,9 +17568,9 @@ return Symbol
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004000</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004526</UniqueId>
 							</Properties>
-							<Item class="ModuleScript" referent="RBX2CB1F5C6450F4517A99B133C089017E2">
+							<Item class="ModuleScript" referent="RBX442E6F41EF9040C7A6CF76B9F75FCC5E">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -17087,7 +17578,7 @@ return Symbol
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">init.spec</string>
-									<string name="ScriptGuid">{C3328E6D-95B0-47F7-8E5B-4DF1167CCE83}</string>
+									<string name="ScriptGuid">{326F4544-FBCD-4BE3-B126-4D40E214FB66}</string>
 									<ProtectedString name="Source"><![CDATA[return function()
 	local Symbol = require(script.Parent)
 
@@ -17124,12 +17615,12 @@ end
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004001</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004527</UniqueId>
 								</Properties>
 							</Item>
 						</Item>
 					</Item>
-					<Item class="Folder" referent="RBX13D1DD373AA746AB95A5B5C0322E9EBF">
+					<Item class="Folder" referent="RBXAE7788EC19E149DEAF9703D1796BB290">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -17138,9 +17629,9 @@ end
 							<string name="Name">sleitnick_table-util@1.2.0</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004002</UniqueId>
+							<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004528</UniqueId>
 						</Properties>
-						<Item class="ModuleScript" referent="RBX529AEDCF4E7B4FBA8594F27049B4B43D">
+						<Item class="ModuleScript" referent="RBX7272CD7416BD4845A45F2D5DD7A6433E">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -17148,7 +17639,7 @@ end
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">table-util</string>
-								<string name="ScriptGuid">{DA83AEF2-96B0-4943-917B-304D56E779DD}</string>
+								<string name="ScriptGuid">{994A74F3-FAA5-4A9F-BCF7-715867A2FFDA}</string>
 								<ProtectedString name="Source"><![CDATA[--!strict
 
 -- TableUtil
@@ -18065,9 +18556,9 @@ return TableUtil
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004003</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004529</UniqueId>
 							</Properties>
-							<Item class="ModuleScript" referent="RBXD1D49C8615E64400B011FA9287770E44">
+							<Item class="ModuleScript" referent="RBXC7BF24A735C04C1C9FBDBC10D0FF852B">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -18075,7 +18566,7 @@ return TableUtil
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">init.spec</string>
-									<string name="ScriptGuid">{C740AE24-71EC-44AE-A53F-1501353263C0}</string>
+									<string name="ScriptGuid">{5B0B2C78-A149-4DE4-8405-DAEDE51B8807}</string>
 									<ProtectedString name="Source"><![CDATA[return function()
 	local TableUtil = require(script.Parent)
 
@@ -18506,12 +18997,12 @@ end
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004004</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d0000452a</UniqueId>
 								</Properties>
 							</Item>
 						</Item>
 					</Item>
-					<Item class="Folder" referent="RBX66B8D8B703AE47EE8C401D9D4888AB6A">
+					<Item class="Folder" referent="RBXB464FD4FC5E64EE790C8C34F2E07209D">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -18520,9 +19011,9 @@ end
 							<string name="Name">sleitnick_timer@1.1.2</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004005</UniqueId>
+							<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d0000452b</UniqueId>
 						</Properties>
-						<Item class="ModuleScript" referent="RBX928C69FCEEF64C4A8467E75C6E9EEDB2">
+						<Item class="ModuleScript" referent="RBX684DFDE1DD2647EA8B1F81F6D4EAB35C">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -18530,15 +19021,15 @@ end
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">Signal</string>
-								<string name="ScriptGuid">{B3AD9986-38B5-426B-BDAC-E63C65E219A5}</string>
+								<string name="ScriptGuid">{9CE9B195-9A6B-47BA-9B2B-E332984D70AC}</string>
 								<ProtectedString name="Source"><![CDATA[return require(script.Parent.Parent["sleitnick_signal@1.5.0"]["signal"])
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004006</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d0000452c</UniqueId>
 							</Properties>
 						</Item>
-						<Item class="ModuleScript" referent="RBX390B0BBAE105485C8C251C854D769143">
+						<Item class="ModuleScript" referent="RBXF135DC641DE24228814B94FCBA1984E2">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -18546,7 +19037,7 @@ end
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">timer</string>
-								<string name="ScriptGuid">{FA3D83E7-C716-454D-80F1-906EFD3EBDDA}</string>
+								<string name="ScriptGuid">{098DBED0-9237-4E98-BD9E-923F5FE785DA}</string>
 								<ProtectedString name="Source"><![CDATA[-- Timer
 -- Stephen Leitnick
 -- July 28, 2021
@@ -18780,9 +19271,9 @@ return Timer
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004007</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d0000452d</UniqueId>
 							</Properties>
-							<Item class="ModuleScript" referent="RBX295C0D3CC06C4F46BE983950BD0B5203">
+							<Item class="ModuleScript" referent="RBX531FB3E7500A44BEA1E660C761D99906">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -18790,7 +19281,7 @@ return Timer
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">init.spec</string>
-									<string name="ScriptGuid">{7C3F3B84-0BD9-4494-96AF-1E8FD0DA79E0}</string>
+									<string name="ScriptGuid">{8CA27604-AECD-4769-9D37-6BEBA81B0291}</string>
 									<ProtectedString name="Source"><![CDATA[return function()
 	local Timer = require(script.Parent)
 
@@ -18863,12 +19354,12 @@ end
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004008</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d0000452e</UniqueId>
 								</Properties>
 							</Item>
 						</Item>
 					</Item>
-					<Item class="Folder" referent="RBX6ED105EE04DC4A83B48488F3F3C81214">
+					<Item class="Folder" referent="RBXAE87392D45C848318EF1FD53D7A0AAC4">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -18877,9 +19368,9 @@ end
 							<string name="Name">sleitnick_trove@0.4.2</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004009</UniqueId>
+							<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d0000452f</UniqueId>
 						</Properties>
-						<Item class="ModuleScript" referent="RBX81A61025EE8F4A3D8307BFD91F517EAF">
+						<Item class="ModuleScript" referent="RBXECE6C05A4C6D488BB813C36038F373F2">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -18887,7 +19378,7 @@ end
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">trove</string>
-								<string name="ScriptGuid">{FC8BE65D-5909-4BFD-ABA8-13D12A133D78}</string>
+								<string name="ScriptGuid">{BB97AB77-D29E-45BE-8A90-28F3ABC26CA8}</string>
 								<ProtectedString name="Source"><![CDATA[-- Trove
 -- Stephen Leitnick
 -- October 16, 2021
@@ -19235,9 +19726,9 @@ return Trove
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca0000400a</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004530</UniqueId>
 							</Properties>
-							<Item class="ModuleScript" referent="RBX09EFB25C433143D8966B6A5C3D8835FA">
+							<Item class="ModuleScript" referent="RBXC253A58DEAF64744ABBDBB92D78B201E">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -19245,7 +19736,7 @@ return Trove
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">init.spec</string>
-									<string name="ScriptGuid">{A73E14F6-5736-4626-9758-E7DD4103801D}</string>
+									<string name="ScriptGuid">{DA453F6D-6981-41A8-9689-2ADC903E388C}</string>
 									<ProtectedString name="Source"><![CDATA[return function()
 	local Trove = require(script.Parent)
 
@@ -19425,12 +19916,12 @@ end
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca0000400b</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004531</UniqueId>
 								</Properties>
 							</Item>
 						</Item>
 					</Item>
-					<Item class="Folder" referent="RBX19C8530A67714C23959C0DB6C8865E59">
+					<Item class="Folder" referent="RBXA1B0B4204A0F4A2AB901B6B52EF9500E">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -19439,9 +19930,9 @@ end
 							<string name="Name">sleitnick_trove@1.0.1</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca0000400c</UniqueId>
+							<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004532</UniqueId>
 						</Properties>
-						<Item class="ModuleScript" referent="RBX6B5E111B13FB4E97BF4AAE124D44E711">
+						<Item class="ModuleScript" referent="RBX88864A1FC5D443D3B66CE44B84CF7C10">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -19449,7 +19940,7 @@ end
 								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">trove</string>
-								<string name="ScriptGuid">{28D24098-5E23-4D03-977F-D4283EDEE6AC}</string>
+								<string name="ScriptGuid">{AE97709B-AEA7-4DC4-9B06-57833E1E7963}</string>
 								<ProtectedString name="Source"><![CDATA[-- Trove
 -- Stephen Leitnick
 -- October 16, 2021
@@ -19835,9 +20326,9 @@ return Trove
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca0000400d</UniqueId>
+								<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004533</UniqueId>
 							</Properties>
-							<Item class="ModuleScript" referent="RBXEE6EC9EC1A1E4739AA48E0B0DBAE1AC2">
+							<Item class="ModuleScript" referent="RBXF5DECF9C3F5C4C9882D5161F92A51F90">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -19845,7 +20336,7 @@ return Trove
 									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 									<Content name="LinkedSource"><null></null></Content>
 									<string name="Name">init.spec</string>
-									<string name="ScriptGuid">{144E3C2B-19C4-45B8-9904-5E028C73CCC3}</string>
+									<string name="ScriptGuid">{D8123340-CC46-4554-9936-55A3FEB2B5E9}</string>
 									<ProtectedString name="Source"><![CDATA[return function()
 	local Trove = require(script.Parent)
 
@@ -20045,13 +20536,13 @@ end
 ]]></ProtectedString>
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca0000400e</UniqueId>
+									<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004534</UniqueId>
 								</Properties>
 							</Item>
 						</Item>
 					</Item>
 				</Item>
-				<Item class="ModuleScript" referent="RBX51108AEC05184028BEB0CA78D3ABD424">
+				<Item class="ModuleScript" referent="RBXBADD15128F494B19B161294196CE5203">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -20059,7 +20550,7 @@ end
 						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">Knit</string>
-						<string name="ScriptGuid">{6A98305F-105E-4268-925E-6146F067C9C2}</string>
+						<string name="ScriptGuid">{418AABDF-B929-4598-A286-335CAB0CA460}</string>
 						<ProtectedString name="Source"><![CDATA[local RunService = game:GetService("RunService")
 
 if RunService:IsServer() then
@@ -20074,9 +20565,9 @@ end
 ]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca0000400f</UniqueId>
+						<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004535</UniqueId>
 					</Properties>
-					<Item class="ModuleScript" referent="RBX2256C40057624D0C94C8886AB69DDAC3">
+					<Item class="ModuleScript" referent="RBXBF559D885AEC4FC0B9990E8482663246">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -20084,7 +20575,7 @@ end
 							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 							<Content name="LinkedSource"><null></null></Content>
 							<string name="Name">KnitClient</string>
-							<string name="ScriptGuid">{502F7822-12E8-4935-BD67-CDE62C0C6733}</string>
+							<string name="ScriptGuid">{2AF84983-F1F5-4B11-98DA-16E5852F50A2}</string>
 							<ProtectedString name="Source"><![CDATA[--[=[
 	@interface Middleware
 	.Inbound ClientMiddleware?
@@ -20478,10 +20969,10 @@ return KnitClient
 ]]></ProtectedString>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004010</UniqueId>
+							<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004536</UniqueId>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBXA754DEEBA91D4B6E974453082EC73D15">
+					<Item class="ModuleScript" referent="RBX5455EBAD53294AA8B9252243A9A8D156">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -20489,7 +20980,7 @@ return KnitClient
 							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 							<Content name="LinkedSource"><null></null></Content>
 							<string name="Name">KnitServer</string>
-							<string name="ScriptGuid">{F88CD30D-A056-40DF-8245-7AC9C8EE24C0}</string>
+							<string name="ScriptGuid">{1F775643-1E4A-4CCF-ADE1-C50B0DB35F01}</string>
 							<ProtectedString name="Source"><![CDATA[--[=[
 	@interface Middleware
 	.Inbound ServerMiddleware?
@@ -20923,491 +21414,7 @@ return KnitServer
 ]]></ProtectedString>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004011</UniqueId>
-						</Properties>
-					</Item>
-				</Item>
-			</Item>
-			<Item class="ModuleScript" referent="RBXEF6734EB69DA4422B7290C11F98F220F">
-				<Properties>
-					<BinaryString name="AttributesSerialize"></BinaryString>
-					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-					<bool name="DefinesCapabilities">false</bool>
-					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-					<Content name="LinkedSource"><null></null></Content>
-					<string name="Name">EasyClientTween</string>
-					<string name="ScriptGuid">{D1AB6ABD-5CD6-4ECC-A49F-4F9F972C1075}</string>
-					<ProtectedString name="Source"><![CDATA[--[[
-The things or functions that were compressed into 1 line are usually not for beginners, use caution when editing them,
-
-HOW TO USE:
-	1. Create a server script, (or edit an existing one)
-	2. In the script, require the module
-		local EasyTween = require(rep:WaitForChild("EasyClientTween"))
-	3. Create the tween handler
-		local EasyTween = require(rep:WaitForChild("EasyClientTween"))
-		local tweenObject = EasyTween.new(Cancellable, InStarterPlayer, ClientSync, DebugModeOverride)
-		
-	4. Wherever you wanna tween (such as in a function, go about doing a regular tweenService:Create() but make tweenInfo in a table, ex: {time, easingstyle, easingdirection}
-		local EasyTween = require(rep:WaitForChild("EasyClientTween"))
-		local tweenObject = EasyTween.new(Cancellable, InStarterPlayer, ClientSync, DebugModeOverride) -- Can leave blank to have defaults, ex: local tweenObject = EasyTween.new()
-		
-		To make it tween for EVERYONE: 
-			tweenObject:TweenAllClients(objectToChange, TweenInfoTable, ValuesToTweenTable)
-				-- Keep in mind that tweeninfo table is not TweenInfo.new() and is "{ Tweeninfo values here }"
-			
-			Ex: tweenObject:TweenAllClients(objectToChange, {1.5, Enum.EasingStyle.Linear}, {Position = Vector3.new(0,5,0})
-		
-		
-		To make it tween for ONLY ONE person:
-			local playerObject = game.Players.HiddenKaiser
-			tweenObject:TweenClient(playerObject, objectToChange, TweenInfoTable, ValuesToTweenTable)
-			
-			Ex: tweenObject:TweenClient(playerObject, objectToChange, {1.5, Enum.EasingStyle.Quad}, {Position = Vector3.new(0,5,0})
-		
-	
-	5. Extra API
-	
-		void EasyTween:Cancel(instance Object)
-		
-			Cancels all tweens on a specific object
-	
-		void tweenObject:Destroy()
-			
-			Cleans up the tween and removes old values
-			
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-	If you have any more ideas on what to make next DM me on discord @HiddenKaiser#0001 or reply to the devforum topic.
-
---]]
-
---Made by HiddenKaiser#0001
-
-local rep = game:GetService("ReplicatedStorage")
-local run = game:GetService("RunService")
-local players = game:GetService("Players")
-local debris = game:GetService("Debris")
-
-local communicate = script:WaitForChild("Communicate")
-local clientSide = script:FindFirstChildWhichIsA("LocalScript") or script:WaitForChild("EasyTweenClient")
-local tickSync = require(script:WaitForChild("TickSyncer"))
-
-local cancelledEvent = Instance.new("BindableEvent")
-
-local Replication = {}
-Replication.__index = Replication -- Allows us to set metatables
-
-
-function Replication.new(Cancellable, InStarterPlayer, ClientSync, DebugModeOverride)
-	local self = {
-		Settings = {
-			Sync = ClientSync or true; --If it removes the issue of clients not being synced because of ping.
-			PlacedAlready = InStarterPlayer or false; -- If the localscript is in StarterPlayerScripts already or still inside the module
-			CanBeCancelled = Cancellable or false; --If the tween gets cancelled when a tween is made for the same object
-			PrintErrors = DebugModeOverride or true; --I would reccomend to keep on true, helps to tell you if you gave the wrong data
-		};
-		
-		CompletedEvent = Instance.new("BindableEvent");
-		Completed = nil;
-		
-		Cancelled = false;
-		CancelEvent = nil; -- This is to store the event for later, dont touch.
-	}
-	
-	setmetatable(self, Replication) --Sets a metatable which lets us index self later
-	
-	self.Completed = self.CompletedEvent.Event;
-
-	return self --Return the table with our functions that allow us to index self later.
-end
-
-function Replication:addClient(plr)
-	if not plr.PlayerGui:FindFirstChild(clientSide.Name) then --Check if player already has it "not" means checking if it *is* nil, and if it *is* nil then clone the script into the backpack
-		local c = clientSide:Clone()
-		c.Parent = plr.PlayerGui --Copy it into the players backpack
-		c.Disabled = false --Make the script actually run lol
-	end
-end
-
-function Replication:addClientToPlayers() -- For new scripters to make it easy to just put the script in
-	for i,plr in pairs(players:GetPlayers()) do --Get all players
-		Replication:addClient(plr) --Read function above
-	end
-end
-
---Replication is now the metatable we set with EasyClientTween.new
-
-function Replication:TweenAllClients(object, info, properties) -- Tell all players to tween
-	if not properties or not object then return end ---If this stuff is missing then return end
-	if not info then info = TweenInfo.new(1) end -- If tweeninfo is nil then make it a info that takes one second to complete
-
-	local Settings = self.Settings
-	if not Settings.PlacedAlready then
-		Replication:addClientToPlayers() --Add client script to players who don't have it
-	end
-	
-	if Settings.CanBeCancelled then
-		if not self.CancelEvent then
-			self.CancelEvent = Instance.new("RemoteEvent")
-		else
-			self.CancelEvent:FireAllClients(object)
-		end  
-	end --Handle the cancel event
-	
-	tickSync:Sync() --Handle the cancel event
-	communicate:FireAllClients(object, info, properties, Settings, tick(), self.CancelEvent) --Tell the client to tween
-end
-
-function Replication:TweenClient(playerObject, object, info, properties) -- Tell a certain player to tween
-	if not properties or not object then return end ---If this stuff is missing then return end
-	if not info then info = {1} end -- If tweeninfo is nil then make it a info that takes one second to complete
-	
-	local Settings = self.Settings
-	if not Settings.PlacedAlready then
-		Replication:addClient(playerObject) --Add client script to the player if they don't have it
-	end
-	
-	if Settings.CanBeCancelled then
-		if not self.CancelEvent then
-			self.CancelEvent = Instance.new("RemoteEvent")
-		else
-			self.Cancelled = true
-			self.CancelEvent:FireAllClients(object)
-		end
-	end --Handle the cancel event
-	
-	tickSync:Sync()
-	
-	communicate:FireClient(playerObject, object, info, properties, Settings, tick(), self.CancelEvent) --Send the message to the clients
-	
-	if info[1] then
-		coroutine.wrap(function()
-			wait(info[1])
-			
-			if not self.Cancelled then
-				self.CompletedEvent:Fire()
-			end
-		end)()
-	end
-end
-
-function Replication:Destroy()
-	local function destroy(obj)
-		if obj then
-			return obj:Destroy()
-		end
-	end
-	
-	destroy(self.CompletedEvent)
-	destroy(self.CancelEvent)
-
-	setmetatable(self, {__mode = "k"}); -- kill the table
-end
-
-function Replication:Cancel(object)
-	assert((object and typeof(object) == "Instance"),  "argument 1, \"object\" must be an instance")
-	
-	if self.CancelEvent then
-		self.CancelEvent:FireAllClients(object)
-	end
-end
-
-return Replication --Return the module
---HiddenKaiser]]></ProtectedString>
-					<int64 name="SourceAssetId">-1</int64>
-					<BinaryString name="Tags"></BinaryString>
-					<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004056</UniqueId>
-				</Properties>
-				<Item class="RemoteEvent" referent="RBXBEF58AAFDACE4964BAD5E2BFBB3D1A51">
-					<Properties>
-						<BinaryString name="AttributesSerialize"></BinaryString>
-						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-						<bool name="DefinesCapabilities">false</bool>
-						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-						<string name="Name">Communicate</string>
-						<int64 name="SourceAssetId">-1</int64>
-						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004057</UniqueId>
-					</Properties>
-				</Item>
-				<Item class="LocalScript" referent="RBX76F9FF1A0EB74A3F9BC503B76FAF910E">
-					<Properties>
-						<BinaryString name="AttributesSerialize"></BinaryString>
-						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-						<bool name="DefinesCapabilities">false</bool>
-						<bool name="Disabled">true</bool>
-						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-						<Content name="LinkedSource"><null></null></Content>
-						<string name="Name">EasyTweenClient</string>
-						<token name="RunContext">0</token>
-						<string name="ScriptGuid">{04913620-B39B-4C0A-B298-DFFD11684A6B}</string>
-						<ProtectedString name="Source"><![CDATA[--HiddenKaiser#0001
-
-local ts = game:GetService("TweenService")
-local Replicated = game:GetService("ReplicatedStorage")
-
-local module = script:WaitForChild("Module", 3.5) and script.Module.Value or Replicated:WaitForChild("EasyClientTween")
-
-local tickSync = require(module:WaitForChild("TickSyncer"))
-local event = script:WaitForChild("Event", 3) and script.Event.Value or module:WaitForChild("Communicate")
-
-if not event then
-	return warn("No event found")
-end
-
-event.OnClientEvent:Connect(function(object, info, properties, Settings, gameTick, CancelEvent) -- Recieve request from the server
-	local tween
-	local currentTick = tickSync:GetTime() -- Get current time
-	local ping = (currentTick - gameTick) --Get the ping
-	
-	if Settings.Sync then info[1] = (info[1] - ping) end --Subtract the tween time by players ping so it's synced up on all clients
-	
-	info = TweenInfo.new(unpack(info))
-	
-	local success, errorStatement = pcall(function()
-		tween = ts:Create(object,info,properties)
-	end) --pcall allows us to see errors
-	
-	if (not success or not tween) and Settings.PrintErrors then
-		return warn("Check passed properties for tween: [" ..properties .."]")
-	end -- Print error statement since a lot of begginners are probably gonna use this.
-	
-	tween:Play() -- Play the tween
-	
-	local connection;  local function cancelTween(objectToBeCancelled)  if object == objectToBeCancelled then  if connection then connection:Disconnect(); connection = nil;  end  tween:Cancel(); tween = nil  end  end -- compressed function that cancels the tween
-	
-	if CancelEvent then
-		connection = CancelEvent.OnClientEvent:Connect(cancelTween)
-		
-		if info.RepeatCount >= 0 then --If repeats forever then will wait until is cancelled
-			for i = 1,(1 + info.RepeatCount) do
-				wait(info.Part)
-			end --Wait until all repeats are done
-			if connection then
-				connection:Disconnect();
-				connection = nil;
-			end --Disconnect the end function since the tween finished
-		end
-	end
-end)]]></ProtectedString>
-						<int64 name="SourceAssetId">-1</int64>
-						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004058</UniqueId>
-					</Properties>
-					<Item class="ObjectValue" referent="RBXCF3D880E70D043849D0ED9DB9497D1A9">
-						<Properties>
-							<BinaryString name="AttributesSerialize"></BinaryString>
-							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-							<bool name="DefinesCapabilities">false</bool>
-							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-							<string name="Name">Event</string>
-							<int64 name="SourceAssetId">-1</int64>
-							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca00004059</UniqueId>
-							<Ref name="Value">RBXBEF58AAFDACE4964BAD5E2BFBB3D1A51</Ref>
-						</Properties>
-					</Item>
-					<Item class="ObjectValue" referent="RBX1F8D3658A64F4718815F6EC5B5212A2B">
-						<Properties>
-							<BinaryString name="AttributesSerialize"></BinaryString>
-							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-							<bool name="DefinesCapabilities">false</bool>
-							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-							<string name="Name">Module</string>
-							<int64 name="SourceAssetId">-1</int64>
-							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca0000405a</UniqueId>
-							<Ref name="Value">RBXEF6734EB69DA4422B7290C11F98F220F</Ref>
-						</Properties>
-					</Item>
-				</Item>
-				<Item class="ModuleScript" referent="RBX2C4D453E01694354952A9641F3F9CF93">
-					<Properties>
-						<BinaryString name="AttributesSerialize"></BinaryString>
-						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-						<bool name="DefinesCapabilities">false</bool>
-						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-						<Content name="LinkedSource"><null></null></Content>
-						<string name="Name">TickSyncer</string>
-						<string name="ScriptGuid">{C8099403-7650-4121-A13D-98CCE72924D6}</string>
-						<ProtectedString name="Source"><![CDATA[--Made by Quenty and not by me
---- Syncronize time between client and servers so we can use a universal timestamp
--- across the game.
--- See: www.nist.gov/el/isd/ieee/upload/tutorial-basic.pdf
--- @classmod TimeSyncManager
--- @usage Use use just require the module, it's a singleton. Load TimeSyncManager on the server to use on the clients.
-
-local RunService = game:GetService("RunService")
-
-local MasterClock = {}
-MasterClock.__index = MasterClock
-MasterClock.ClassName = "MasterClock"
-
-function MasterClock.new(remoteEvent, remoteFunction)
-	local self = setmetatable({}, MasterClock)
-
-	self._remoteEvent = remoteEvent or error("No remoteEvent")
-	self._remoteFunction = remoteFunction or error("No remoteFunction")
-
-	self._remoteFunction.OnServerInvoke = function(player, timeThree)
-		return self:_handleDelayRequest(timeThree)
-	end
-	self._remoteEvent.OnServerEvent:Connect(function(player)
-		self._remoteEvent:FireClient(player, self:GetTime())
-	end)
-
-	coroutine.wrap(function()
-		while true do
-			wait(5)
-			self:Sync()
-		end
-	end)()
-
-	return self
-end
-
---- Returns true if the manager has synced with the server
--- @treturn boolean
-function MasterClock:IsSynced()
-	return true
-end
-
---- Returns the sycncronized time
--- @treturn number current time
-function MasterClock:GetTime()
-	return tick()
-end
-
---- Starts the sync process with all slave clocks.
-function MasterClock:Sync()
-	local timeOne = self:GetTime()
-	--print("Syncing")
-    self._remoteEvent:FireAllClients(timeOne)
-end
-
---- Client sends back message to get the SM_Difference.
--- @return slaveMasterDifference
-function MasterClock:_handleDelayRequest(timeThree)
-    local TimeFour = self:GetTime()
-    return TimeFour - timeThree -- -offset + SM Delay
-end
-
-
-local SlaveClock = {}
-SlaveClock.__index = SlaveClock
-SlaveClock.ClassName = "SlaveClock"
-SlaveClock._offset = -1 -- Set uncalculated values to -1
-
-function SlaveClock.new(remoteEvent, remoteFunction)
-	local self = setmetatable({}, SlaveClock)
-
-	self._remoteEvent = remoteEvent or error("No remoteEvent")
-	self._remoteFunction = remoteFunction or error("No remoteFunction")
-
-	self._remoteEvent.OnClientEvent:Connect(function(timeOne)
-		self:_handleSyncEvent(timeOne)
-	end)
-
-	self._remoteEvent:FireServer() -- Request server to syncronize with us
-
-	return self
-end
-
-function SlaveClock:GetTime()
-	if not self:IsSynced() then
-		return self:_getLocalTime()
-	end
-
-	return self:_getLocalTime() - self._offset
-end
-
-function SlaveClock:IsSynced()
-	return self._offset ~= -1
-end
-
-function SlaveClock:_getLocalTime()
-    return tick()
-end
-
-function SlaveClock:_handleSyncEvent(timeOne)
-    local timeTwo = self:_getLocalTime() -- We can't actually get hardware stuff, so we'll send T1 immediately.
-    local masterSlaveDifference = timeTwo - timeOne -- We have Offst + MS Delay
-
-    local timeThree = self:_getLocalTime()
-    local slaveMasterDifference = self:_sendDelayRequest(timeThree)
-
-    --[[ From explination link.
-        The result is that we have the following two equations:
-        MS_difference = offset + MS delay
-        SM_difference = ?offset + SM delay
-        With two measured quantities:
-        MS_difference = 90 minutes
-        SM_difference = ?20 minutes
-        And three unknowns:
-        offset , MS delay, and SM delay
-        Rearrange the equations according to the tutorial.
-        -- Assuming this: MS delay = SM delay = one_way_delay
-        one_way_delay = (MSDelay + SMDelay) / 2
-    ]]
-
-    local offset = (masterSlaveDifference - slaveMasterDifference)/2
-    local oneWayDelay = (masterSlaveDifference + slaveMasterDifference)/2
-
-    self._offset = offset -- Estimated difference between server/client
-    self._pneWayDelay = oneWayDelay -- Estimated time for network events to send. (MSDelay/SMDelay)
-end
-
-function SlaveClock:_sendDelayRequest(timeThree)
-	return self._remoteFunction:InvokeServer(timeThree)
-end
-
-
---- Return a singleton
-local function buildClock()
-
-	local remoteEvent = script:WaitForChild("TimeSyncEvent")
-	local remoteFunction = script:WaitForChild("DelayedRequestEvent")
-
-	if RunService:IsClient() and RunService:IsServer() then -- Solo test mode
-		local clock = MasterClock.new(remoteEvent, remoteFunction)
-		remoteEvent.OnClientEvent:Connect(function() end)
-		return clock
-	elseif RunService:IsClient() then
-		return SlaveClock.new(remoteEvent, remoteFunction)
-	else
-		return MasterClock.new(remoteEvent, remoteFunction)
-	end
-end
-
-return buildClock()
-]]></ProtectedString>
-						<int64 name="SourceAssetId">-1</int64>
-						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca0000405b</UniqueId>
-					</Properties>
-					<Item class="RemoteEvent" referent="RBXB66A8F83FC88441D8B2D1F02C3219D19">
-						<Properties>
-							<BinaryString name="AttributesSerialize"></BinaryString>
-							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-							<bool name="DefinesCapabilities">false</bool>
-							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-							<string name="Name">TimeSyncEvent</string>
-							<int64 name="SourceAssetId">-1</int64>
-							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca0000405c</UniqueId>
-						</Properties>
-					</Item>
-					<Item class="RemoteFunction" referent="RBX34905F1E2D3745D1A425D6901DECC12B">
-						<Properties>
-							<BinaryString name="AttributesSerialize"></BinaryString>
-							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-							<bool name="DefinesCapabilities">false</bool>
-							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-							<string name="Name">DelayedRequestEvent</string>
-							<int64 name="SourceAssetId">-1</int64>
-							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">490cb0b650ecb3fe0540ebca0000405d</UniqueId>
+							<UniqueId name="UniqueId">11a7e4016bef0fcc05411a1d00004537</UniqueId>
 						</Properties>
 					</Item>
 				</Item>
